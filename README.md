@@ -8,4 +8,5 @@
 - ja : the dupermen base
 - bush : bush event bus (superior, use this shit)
 - perry : packetutils
-- restack : rotationmanager (not used lol)
+- catuquei : for testing on cc and 2b due to noat having very shit ping on every server known to existence
+-  restack : rotationmanager (not used lol)
