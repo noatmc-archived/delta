@@ -1,0 +1,16 @@
+{
+  "required": true,
+  "compatibilityLevel": "JAVA_8",
+  "package": "delta.mixin.mixins",
+  "refmap": "mixins.dupermen.refmap.json",
+  "mixins": [
+    "MixinEntityPlayerSP",
+    "MixinNetworkManager",
+    "MixinWorld"
+  ],
+  "client": [
+    "MixinEntityRenderer",
+    "MixinGuiIngameForge",
+    "MixinRenderEnderCrystal"
+  ]
+}
