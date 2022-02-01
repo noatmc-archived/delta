@@ -46,6 +46,10 @@ public class Module {
         onEnable();
     }
 
+    public void onMotion() {
+
+    }
+
     public void disable() {
         DeltaCore.EVENT_BUS.unsubscribe(this);
         onDisable();

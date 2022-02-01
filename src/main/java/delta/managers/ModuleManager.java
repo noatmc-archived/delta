@@ -54,6 +54,14 @@ public class    ModuleManager {
         }
     }
 
+    public void onMotion() {
+        for (Module module : modules) {
+            if (module.isToggled()) {
+                module.onMotion();
+            }
+        }
+    }
+
     public void onBlockDestroyed(BlockPos pos) {
         for (Module module : modules) {
             if (module.isToggled()) {

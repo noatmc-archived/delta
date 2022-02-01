@@ -22,7 +22,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.awt.*;
@@ -49,8 +48,8 @@ public class AutoCrystal extends Module {
     Setting rotate = setting("Rotation", false);
     Setting wallRange = setting("Wall Range", 4.0, 0.1 ,6.0, false);
     Setting antiSuicide = setting("Anti Suicide", false);
-    Setting maxSelfDmg = setting("Self Damage", 36.0f, 0.0f, 36.0f, false);
-    Setting ignoreSelfDmg = setting("Ignore Self Damage", true);
+    Setting maxSelfDmg = setting("Self Damage", 36.0f, 0.0f, 1000, false);
+//    Setting ignoreSelfDmg = setting("Ignore Self Damage", true);
     Setting placeSpeed = setting("Place Speed", 20.0, 0.1, 20.0, false);
     Setting minDamage = setting("Min Damage", 6.0f, 0.0f, 36.0f, false);
     Setting alpha = setting("Alpha", 190, 0, 255, true);
@@ -106,10 +105,6 @@ public class AutoCrystal extends Module {
         if (this.position != null) {
             if (crystal instanceof EntityEnderCrystal && mc.player.getDistance(crystal) <= breakRange.getDVal()) {
                 if (breakCrystal.getBVal()) {
-//                    if (antiSuicide.getBVal() && CrystalUtils.calculateDamagePhobos(crystal.posX, crystal.posY, crystal.posZ, mc.player) < mc.player.getHealth() + mc.player.getAbsorptionAmount()) return;
-//                    if (rotate.getBVal()) {
-//                        DeltaCore.rotationManager.rotateToNext(new Rotation(crystal.getPositionVector(), 32, strictRotate.getBVal(), 5));
-//                    }
                     mc.playerController.attackEntity(mc.player, crystal);
                     if (sync.getBVal()) crystal.setDead();
                     if (swing.getBVal()) mc.player.swingArm(EnumHand.OFF_HAND);
@@ -123,10 +118,19 @@ public class AutoCrystal extends Module {
     public void onPlayerUpdate(TickEvent.Pre event) {
         if (fullNullCheck()) return;
         if (!event.isCancelled()) {
-            if (placeCrystal.getBVal() && placeTimer.hasReached((long) (500 / placeSpeed.getDVal()))) {
+            if (!rotate.getBVal() && placeCrystal.getBVal() && placeTimer.hasReached((long) (500 / placeSpeed.getDVal()))) {
                 placeCrystal();
                 placeTimer.reset();
             }
+        }
+    }
+
+    @Override
+    public void onMotion() {
+        if (fullNullCheck()) return;
+        if (rotate.getBVal() && placeCrystal.getBVal() && placeTimer.hasReached((long) (500 / placeSpeed.getDVal()))) {
+            placeCrystal();
+            placeTimer.reset();
         }
     }
 
@@ -141,27 +145,7 @@ public class AutoCrystal extends Module {
     @SubscribeEvent
     public void onRenderWorldLastEvent(RenderWorldLastEvent event) {
         if (this.position != null) {
-            RenderUtils.drawBox(position.pos.up(1), new Color(rainbow(50).getRed(), rainbow(50).getGreen(), rainbow(50).getBlue(), (int) alpha.getDVal()), -1, false, false, (int) alpha.getDVal());
-        }
-    }
-
-    @SubscribeEvent
-    public void onBlockDestroyed(BlockEvent.BreakEvent event) {
-        if (target != null && PlayerUtils.getCityableBlocks(target).contains(event.getPos()) && CrystalUtils.isCrystalStuck(event.getPos().down(1)) == null) {
-            if (!PlayerUtils.getCityableBlocks(target).isEmpty()) {
-                try {
-//                        if (rotate.getBVal()) {
-//                            DeltaCore.rotationManager.rotateToNext(new Rotation(removed.getPositionVector(), 32, strictRotate.getBVal(), 5));
-//                        }
-                    int slot = mc.player.inventory.currentItem;
-                    if (silent.getBVal()) InventoryUtils.switchToItem(Items.END_CRYSTAL, true);
-                    CrystalUtils.placeCrystalOnBlock(PacketType.valueOf(packetType.getMode()), event.getPos().down(1));
-                    if (silent.getBVal()) InventoryUtils.switchToSlot(slot, false);
-                    MessageUtils.sendMessage("DeltaCrystal -> Citying detected, trying to place a crystal at " + event.getPos().down(1));
-                } catch (Exception exc) {
-                    // exc
-                }
-            }
+            RenderUtils.drawBoxESP(position.pos, new Color(rainbow(50).getRed(), rainbow(50).getGreen(), rainbow(50).getBlue(), (int) alpha.getDVal()), 1.0f, true, true, (int) alpha.getDVal(), 0.0);
         }
     }
 
@@ -171,9 +155,6 @@ public class AutoCrystal extends Module {
             if (attackedCrystal.contains(removed)) {
                 if (replace.getBVal()) {
                     try {
-//                        if (rotate.getBVal()) {
-//                            DeltaCore.rotationManager.rotateToNext(new Rotation(removed.getPositionVector(), 32, strictRotate.getBVal(), 5));
-//                        }
                         int slot = mc.player.inventory.currentItem;
                         if (silent.getBVal()) InventoryUtils.switchToItem(Items.END_CRYSTAL, true);
                         CrystalUtils.placeCrystalOnBlock(PacketType.valueOf(packetType.getMode()), removed.getPosition().down(1));
@@ -199,7 +180,10 @@ public class AutoCrystal extends Module {
                 if (CrystalUtils.isCrystalStuck(pos) != null) {
                     mc.playerController.attackEntity(mc.player, Objects.requireNonNull(CrystalUtils.isCrystalStuck(pos)));
                 }
-                if ((selfDamage < getSuicideHealth()) && targetDamage > minDamage.getDVal() && !rayTracePlaceCheck(pos, mc.player.getDistanceSq(pos) <= wallRange.getDVal() * wallRange.getDVal(), 1.0f)) {
+//                if (antiSuicide.getBVal()) {
+//                    if (selfDamage < getSuicideHealth()) continue;
+//                }
+                if (targetDamage > minDamage.getDVal() && !rayTracePlaceCheck(pos, mc.player.getDistanceSq(pos) <= wallRange.getDVal() * wallRange.getDVal(), 1.0f)) {
                     position.add(new Position(targetDamage, pos));
                 }
             }
@@ -210,10 +194,12 @@ public class AutoCrystal extends Module {
     }
 
     double getSuicideHealth() {
-        if (antiSuicide.getBVal()) return mc.player.getHealth() + mc.player.getAbsorptionAmount();
-        if (ignoreSelfDmg.getBVal()) {
-            return 69420.0;
+        if (antiSuicide.getBVal()) {
+            return mc.player.getHealth() + mc.player.getAbsorptionAmount();
         }
+//        if (ignoreSelfDmg.getBVal()) {
+//            return 69420.0;
+//        }
         return maxSelfDmg.getDVal();
     }
 

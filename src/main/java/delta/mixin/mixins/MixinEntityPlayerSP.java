@@ -21,4 +21,9 @@ public class MixinEntityPlayerSP {
         TickEvent.Post event = new TickEvent.Post();
         DeltaCore.EVENT_BUS.post(event);
     }
+
+    @Inject(method = "onUpdateWalkingPlayer", at=@At("HEAD"))
+    private void preMotion(CallbackInfo info) {
+         DeltaCore.moduleManager.onMotion();
+    }
 }
