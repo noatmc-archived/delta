@@ -28,7 +28,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.Objects;
 
-@SuppressWarnings("unused")
+@SuppressWarnings("all")
 public class AutoCrystal extends Module {
 
     Setting placeCrystal = setting("Place Crystal", true);
@@ -42,7 +42,6 @@ public class AutoCrystal extends Module {
     });
     Setting replace = setting("Replace", false);
     Setting silent = setting("Silent", true);
-    Setting slowBreak = setting("Slow", false);
     Setting sync = setting("Sync Attack", true);
     Setting swing = setting("Swing", true);
     Setting rotate = setting("Rotation", false);
@@ -53,6 +52,7 @@ public class AutoCrystal extends Module {
     Setting placeSpeed = setting("Place Speed", 20.0, 0.1, 20.0, false);
     Setting minDamage = setting("Min Damage", 6.0f, 0.0f, 36.0f, false);
     Setting alpha = setting("Alpha", 190, 0, 255, true);
+    Setting noDelay = setting("No Delay", true);
 
     ArrayList<EntityEnderCrystal> attackedCrystal = new ArrayList<>();
     Position position = null;
@@ -78,8 +78,8 @@ public class AutoCrystal extends Module {
     public void onThread() {
 
 //        System.out.println(speed);
-        if (timer.hasReached(1000)) {
-            speed = 0;
+        if (timer.hasReached(500)) {
+            attackedCrystal.clear();
             timer.reset();
         }
     }
@@ -118,19 +118,36 @@ public class AutoCrystal extends Module {
     public void onPlayerUpdate(TickEvent.Pre event) {
         if (fullNullCheck()) return;
         if (!event.isCancelled()) {
-            if (!rotate.getBVal() && placeCrystal.getBVal() && placeTimer.hasReached((long) (500 / placeSpeed.getDVal()))) {
-                placeCrystal();
-                placeTimer.reset();
+            if (noDelay.getBVal()) {
+                if (!rotate.getBVal() && placeCrystal.getBVal()) {
+                    placeCrystal();
+                }
+            } else {
+                if (!rotate.getBVal() && placeCrystal.getBVal() && placeTimer.hasReached((long) (500 / placeSpeed.getDVal()))) {
+                    placeCrystal();
+                    placeTimer.reset();
+                }
             }
         }
     }
 
     @Override
+    public String getHudString() {
+        return "" + attackedCrystal.size();
+    }
+
+    @Override
     public void onMotion() {
         if (fullNullCheck()) return;
-        if (rotate.getBVal() && placeCrystal.getBVal() && placeTimer.hasReached((long) (500 / placeSpeed.getDVal()))) {
-            placeCrystal();
-            placeTimer.reset();
+        if (noDelay.getBVal()) {
+            if (rotate.getBVal() && placeCrystal.getBVal()) {
+                placeCrystal();
+            }
+        } else {
+            if (rotate.getBVal() && placeCrystal.getBVal() && placeTimer.hasReached((long) (500 / placeSpeed.getDVal()))) {
+                placeCrystal();
+                placeTimer.reset();
+            }
         }
     }
 
@@ -174,16 +191,16 @@ public class AutoCrystal extends Module {
             if (player == mc.player) continue;
             if (player.getDistance(mc.player) >= 11) continue; // stops lag
             target = player;
-            for (BlockPos pos : CrystalUtils.possiblePlacePositions((float) placeRange.getDVal(), true, false)) {
+            for (BlockPos pos : CrystalUtils.possiblePlacePosPhobos((float) placeRange.getDVal(), true, false)) {
                 double targetDamage = CrystalUtils.calculateDamagePhobos(pos.getX() + 0.5, pos.getY() + 1, pos.getZ() + 0.5, player);
-                double selfDamage = CrystalUtils.calculateDamagePhobos(pos.getX() + 0.5, pos.getY() + 1, pos.getZ() + 0.5, mc.player);
-                if (CrystalUtils.isCrystalStuck(pos) != null) {
-                    mc.playerController.attackEntity(mc.player, Objects.requireNonNull(CrystalUtils.isCrystalStuck(pos)));
-                }
+//                double selfDamage = CrystalUtils.calculateDamagePhobos(pos.getX() + 0.5, pos.getY() + 1, pos.getZ() + 0.5, mc.player);
+//                if (CrystalUtils.isCrystalStuck(pos) != null) {
+//                    mc.playerController.attackEntity(mc.player, Objects.requireNonNull(CrystalUtils.isCrystalStuck(pos)));
+//                }
 //                if (antiSuicide.getBVal()) {
 //                    if (selfDamage < getSuicideHealth()) continue;
 //                }
-                if (targetDamage > minDamage.getDVal() && !rayTracePlaceCheck(pos, mc.player.getDistanceSq(pos) <= wallRange.getDVal() * wallRange.getDVal(), 1.0f)) {
+                if (targetDamage > minDamage.getDVal()) {
                     position.add(new Position(targetDamage, pos));
                 }
             }
@@ -212,9 +229,13 @@ public class AutoCrystal extends Module {
             if (silent.getBVal()) InventoryUtils.switchToItem(Items.END_CRYSTAL, true);
             CrystalUtils.placeCrystalOnBlock(PacketType.valueOf(packetType.getMode()), position.pos);
             if (silent.getBVal()) InventoryUtils.switchToSlot(slot, true);
-            speed++;
+            
         } catch (Exception e) {
             // cope
         }
+    }
+
+    public void deez() {
+
     }
 }

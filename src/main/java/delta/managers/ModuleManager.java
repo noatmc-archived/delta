@@ -31,6 +31,14 @@ public class    ModuleManager {
         return modules;
     }
 
+    public ArrayList<Module> getEnabledModules() {
+        ArrayList<Module> a = new ArrayList<>();
+        for (Module mod : modules) {
+            if (mod.isToggled()) a.add(mod);
+        }
+        return a;
+    }
+
     @EventListener(priority = ListenerPriority.HIGHEST)
     public void onTick(TickEvent.Pre event) {
         for (Module module : modules) {

@@ -96,6 +96,14 @@ public class Module {
 
     }
 
+    public String getHudString() {
+        return null;
+    }
+
+    public String getFullString() {
+        return this.name + (getHudString() != null ? "[" + getHudString() + "]" : "");
+    }
+
     public void onUpdate() {
 
     }

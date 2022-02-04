@@ -211,6 +211,13 @@ public class CrystalUtils implements Wrapper {
         return damage;
     }
 
+    public static
+    List < BlockPos > possiblePlacePosPhobos ( float placeRange , boolean specialEntityCheck , boolean oneDot15 ) {
+        NonNullList<BlockPos> positions = NonNullList.create ( );
+        positions.addAll ( getSphere ( PlayerUtils.getPlayerPos ( mc.player ) , placeRange , (int) placeRange , false , true , 0 ).stream ( ).filter ( pos -> canPlaceCrystalPhobos ( pos , specialEntityCheck , oneDot15 ) ).collect ( Collectors.toList ( ) ) );
+        return positions;
+    }
+
 
     public static float calculateDamagePhobos(double posX, double posY, double posZ, Entity entity) {
         float doubleExplosionSize = 12.0f;
@@ -330,6 +337,33 @@ public class CrystalUtils implements Wrapper {
             }
         }
         return null;
+    }
+
+    public static
+    boolean canPlaceCrystalPhobos ( BlockPos blockPos , boolean specialEntityCheck , boolean oneDot15 ) {
+        BlockPos boost = blockPos.add ( 0 , 1 , 0 );
+        BlockPos boost2 = blockPos.add ( 0 , 2 , 0 );
+        try {
+            if ( mc.world.getBlockState ( blockPos ).getBlock ( ) != Blocks.BEDROCK && mc.world.getBlockState ( blockPos ).getBlock ( ) != Blocks.OBSIDIAN ) {
+                return false;
+            }
+            if ( ! oneDot15 && mc.world.getBlockState ( boost2 ).getBlock ( ) != Blocks.AIR || mc.world.getBlockState ( boost ).getBlock ( ) != Blocks.AIR ) {
+                return false;
+            }
+            for (Entity entity : mc.world.getEntitiesWithinAABB ( Entity.class , new AxisAlignedBB ( boost ) )) {
+                if ( entity.isDead || specialEntityCheck && entity instanceof EntityEnderCrystal ) continue;
+                return false;
+            }
+            if ( ! oneDot15 ) {
+                for (Entity entity : mc.world.getEntitiesWithinAABB ( Entity.class , new AxisAlignedBB ( boost2 ) )) {
+                    if ( entity.isDead || specialEntityCheck && entity instanceof EntityEnderCrystal ) continue;
+                    return false;
+                }
+            }
+        } catch ( Exception ignored ) {
+            return false;
+        }
+        return true;
     }
 
     public static boolean canPlaceCrystal(BlockPos blockPos, boolean specialEntityCheck, boolean onepointThirteen) {

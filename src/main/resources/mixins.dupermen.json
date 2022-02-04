@@ -11,6 +11,7 @@
   "client": [
     "MixinEntityRenderer",
     "MixinGuiIngameForge",
+    "MixinNetHandlerPlayClient",
     "MixinRenderEnderCrystal"
   ]
 }
