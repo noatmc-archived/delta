@@ -16,8 +16,11 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityEnderCrystal;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.network.play.client.CPacketPlayer;
+import net.minecraft.network.play.server.SPacketSoundEffect;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
@@ -72,6 +75,21 @@ public class AutoCrystal extends Module {
     public static Color rainbow(int delay) {
         double rainbowState = Math.ceil((double) (System.currentTimeMillis() + (long) delay) / 20.0);
         return Color.getHSBColor((float) (rainbowState % 360.0 / 360.0), 255 / 255.0f, 198 / 255.0f);
+    }
+
+    @EventListener
+    public void onPacketReceive(PacketEvent.Receive event) {
+        if (event.getPacket() instanceof SPacketSoundEffect) {
+            if (((SPacketSoundEffect) event.getPacket()).getCategory() == SoundCategory.BLOCKS && ((SPacketSoundEffect) event.getPacket()).getSound() == SoundEvents.ENTITY_GENERIC_EXPLODE) {
+                for (Entity e : mc.world.loadedEntityList) {
+                    if (e instanceof EntityEnderCrystal) {
+                        if (e.getDistance(((SPacketSoundEffect) event.getPacket()).getX(), ((SPacketSoundEffect) event.getPacket()).getY(), ((SPacketSoundEffect) event.getPacket()).getZ()) <= 6.0f) {
+                            e.setDead();
+                        }
+                    }
+                }
+            }
+        }
     }
 
     @Override
