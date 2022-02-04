@@ -16,23 +16,6 @@ import java.util.HashMap;
 public class TotemPopManager implements Wrapper {
     public static HashMap<Entity, Integer> totemMap = new HashMap<>();
 
-    private static void update() {
-        for(Entity entity : totemMap.keySet()) {
-            if(!mc.world.loadedEntityList.contains(entity)) {
-                totemMap.remove(entity);
-            }
-        }
-    }
-
-    @EventListener
-    public void onTick(TickEvent.Pre event) {
-        if (mc.player == null || mc.world == null) {
-            totemMap.clear();
-            return;
-        }
-        update();
-    }
-
     @EventListener
     public void onTotemPop(PacketEvent.Receive event) {
 //        if (nullCheck) return;
