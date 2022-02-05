@@ -1,6 +1,8 @@
 ---
 # delta
 bad skid made by a dumbass pt.3
+
+check [711.club](https://discord.gg/Z9DvrwphAP) out for actual good shit
 ### hacks
 - autocrystal : really bad ~~suicide~~ autocrystal, fast only when u don't want it to
 - effects : insanely bad effects, legit just summon a thunder on someone when they popped or died
