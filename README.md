@@ -14,6 +14,7 @@ bad skid made by a dumbass pt.3
 - wp3 : also utils
 - restack : some rotations
 - rommamo : reflections
+- 711 (trolled) : funny packets
 - if there's something that you think is a skid, dm me on discord and i will add your shit to the list :)
 ### credits
 - bush for being cool and give me good music
