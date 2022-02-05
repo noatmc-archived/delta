@@ -2,29 +2,29 @@ package delta.managers;
 
 import delta.event.TickEvent;
 import delta.module.Module;
+import delta.module.modules.*;
 import me.bush.eventbus.annotation.EventListener;
 import me.bush.eventbus.annotation.ListenerPriority;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
-import org.reflections.Reflections;
 
 import java.util.ArrayList;
-import java.util.Set;
 
-public class    ModuleManager {
+public class ModuleManager {
     ArrayList<Module> modules = new ArrayList<>();
 
     public ModuleManager() {
-        Reflections reflections = new Reflections("delta.module.modules");
-        Set<Class<? extends Module>> balls =  reflections.getSubTypesOf(Module.class);
-        balls.forEach(f -> {
-            try {
-                Module mod = f.getConstructor().newInstance();
-                modules.add(mod);
-            } catch (Exception ignored) {
-
-            }
-        });
+        modules.add(new AutoCrystal());
+        modules.add(new AutoDuper());
+        modules.add(new ClickGUI());
+        modules.add(new ConfigSave());
+        modules.add(new Effects());
+        modules.add(new FakePlayer());
+        modules.add(new HUD());
+        modules.add(new ModifyCrystal());
+        modules.add(new RPC());
+        modules.add(new TotemPopCounter());
+        modules.add(new Velocity());
     }
 
     public ArrayList<Module> getModules() {

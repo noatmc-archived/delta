@@ -24,6 +24,7 @@ public class DeltaCore {
     public static RotationManager rotationManager;
     public static ConfigManager configManager;
     public static TotemPopManager totemPopManager;
+    public static EventManager eventManager;
 
     @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
@@ -35,11 +36,13 @@ public class DeltaCore {
         threadManager = new ThreadManager();
         configManager = new ConfigManager();
         rotationManager = new RotationManager();
+        eventManager = new EventManager();
         clickGui = new ClickGui();
         EVENT_BUS.subscribe(totemPopManager);
         EVENT_BUS.subscribe(moduleManager);
         EVENT_BUS.subscribe(commandManager);
         EVENT_BUS.subscribe(rotationManager);
+        EVENT_BUS.subscribe(eventManager);
         try {
             configManager.loadModule();
         } catch (Exception exc) {
