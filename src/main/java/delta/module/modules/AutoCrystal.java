@@ -1,5 +1,6 @@
 package delta.module.modules;
 
+import delta.DeltaCore;
 import delta.event.PacketEvent;
 import delta.event.TickEvent;
 import delta.module.Category;
@@ -17,7 +18,6 @@ import net.minecraft.entity.item.EntityEnderCrystal;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.init.SoundEvents;
-import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraft.network.play.server.SPacketSoundEffect;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
@@ -122,10 +122,16 @@ public class AutoCrystal extends Module {
         if (this.position != null) {
             if (crystal instanceof EntityEnderCrystal && mc.player.getDistance(crystal) <= breakRange.getDVal()) {
                 if (breakCrystal.getBVal()) {
+                    if (rotate.getBVal()) {
+                        DeltaCore.rotationManager.setRotate(true);
+                        DeltaCore.rotationManager.setYaw(RotationUtil.getRotations(crystal.getPositionVector())[0]);
+                        DeltaCore.rotationManager.setPitch(RotationUtil.getRotations(crystal.getPositionVector())[1]);
+                    }
                     mc.playerController.attackEntity(mc.player, crystal);
                     if (sync.getBVal()) crystal.setDead();
                     if (swing.getBVal()) mc.player.swingArm(EnumHand.OFF_HAND);
                     attackedCrystal.add((EntityEnderCrystal) crystal);
+                    DeltaCore.rotationManager.setRotate(false);
                 }
             }
         }
@@ -165,14 +171,6 @@ public class AutoCrystal extends Module {
                 placeCrystal();
                 placeTimer.reset();
             }
-        }
-    }
-
-    @EventListener
-    public void onPacketSend(PacketEvent.Send event) {
-        if (event.getPacket() instanceof CPacketPlayer && this.position != null && rotate.getBVal()) {
-            ((CPacketPlayer) event.getPacket()).yaw = RotationUtil.getLegitRotations(new Vec3d(this.position.pos))[0];
-            ((CPacketPlayer) event.getPacket()).pitch = RotationUtil.getLegitRotations(new Vec3d(this.position.pos))[1];
         }
     }
 
@@ -241,7 +239,11 @@ public class AutoCrystal extends Module {
         this.position = getCrystalPlacePos();
         if (position == null) return;
         try {
-//            if (rotate.getBVal()) { DeltaCore.rotationManager.rotateToNext(new Rotation(new Vec3d(position.pos), 32, strictRotate.getBVal(), 5)); }
+            if (rotate.getBVal()) {
+                DeltaCore.rotationManager.setRotate(true);
+                DeltaCore.rotationManager.setYaw(RotationUtil.getLegitRotations(new Vec3d(position.pos))[0]);
+                DeltaCore.rotationManager.setPitch(RotationUtil.getLegitRotations(new Vec3d(position.pos))[1]);
+            }
             int slot = mc.player.inventory.currentItem;
             if (silent.getBVal()) InventoryUtils.switchToItem(Items.END_CRYSTAL, true);
             CrystalUtils.placeCrystalOnBlock(PacketType.valueOf(packetType.getMode()), position.pos, silent.getBVal());
