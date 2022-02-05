@@ -4,6 +4,7 @@ bad skid made by a dumbass pt.3
 ### hacks
 - autocrystal : really bad ~~suicide~~ autocrystal, fast only when u don't want it to
 - effects : insanely bad effects, legit just summon a thunder on someone when they popped or died
+- 10 more hacks : useless as shit
 ### todo's
 - make a working config manager (this one is kinda wacky)
 - rewrite the gui
