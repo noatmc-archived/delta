@@ -24,4 +24,8 @@ public class BlockUtils {
         }
         return circleblocks;
     }
+
+    public static BlockPos getFlooredPos(BlockPos pos) {
+        return new BlockPos(Math.floor(pos.getX()), Math.floor(pos.getY()), Math.floor(pos.getZ()));
+    }
 }

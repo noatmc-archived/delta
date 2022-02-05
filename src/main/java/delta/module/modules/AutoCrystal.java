@@ -9,6 +9,7 @@ import delta.setting.Setting;
 import delta.util.*;
 import delta.util.autocrystal.Position;
 import delta.util.autocrystal.Sorter;
+import delta.util.fade.FadePos;
 import delta.util.packets.PacketType;
 import delta.util.rotation.RotationUtil;
 import me.bush.eventbus.annotation.EventListener;
@@ -53,7 +54,10 @@ public class AutoCrystal extends Module {
     Setting ignoreSelfDmg = setting("Ignore Self Damage", true);
     Setting placeSpeed = setting("Place Speed", 20.0, 0.1, 20.0, false);
     Setting minDamage = setting("Min Damage", 6.0f, 0.0f, 36.0f, false);
-    Setting alpha = setting("Alpha", 190, 0, 255, true);
+    Setting fade = setting("Fade", true);
+    Setting r = setting("Red", 255, 0, 255, true);
+    Setting g = setting("Green", 255, 0, 255, true);
+    Setting b = setting("Blue", 255, 0, 255, true);
     Setting noDelay = setting("No Delay", true);
 
     ArrayList<EntityEnderCrystal> attackedCrystal = new ArrayList<>();
@@ -176,8 +180,8 @@ public class AutoCrystal extends Module {
 
     @SubscribeEvent
     public void onRenderWorldLastEvent(RenderWorldLastEvent event) {
-        if (this.position != null) {
-            RenderUtils.drawBoxESP(position.pos, new Color(rainbow(50).getRed(), rainbow(50).getGreen(), rainbow(50).getBlue(), (int) alpha.getDVal()), 1.0f, true, true, (int) alpha.getDVal(), 0.0);
+        if (this.position != null && !fade.getBVal()) {
+            RenderUtils.drawBoxESP(position.pos, new Color(rainbow(50).getRed(), rainbow(50).getGreen(), rainbow(50).getBlue(), (int) 190), 1.0f, true, true, (int) 190, 0.0);
         }
     }
 
@@ -248,7 +252,7 @@ public class AutoCrystal extends Module {
             if (silent.getBVal()) InventoryUtils.switchToItem(Items.END_CRYSTAL, true);
             CrystalUtils.placeCrystalOnBlock(PacketType.valueOf(packetType.getMode()), position.pos, silent.getBVal());
             if (silent.getBVal()) InventoryUtils.switchToSlot(slot, true);
-            
+            if (fade.getBVal()) DeltaCore.fadeManager.addFadePos(new FadePos(position.pos, new Color((int) r.getDVal(), (int) g.getDVal(), (int) b.getDVal())));
         } catch (Exception e) {
             // cope
         }
