@@ -6,4 +6,5 @@ public enum Category {
     MISC,
     HUD,
     CLIENT,
+    RENDER
 }

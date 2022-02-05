@@ -279,10 +279,14 @@ public class CrystalUtils implements Wrapper {
         return positions;
     }
 
-    public static void placeCrystalOnBlock(PacketType packetType, BlockPos pos) {
+    public static void placeCrystalOnBlock(PacketType packetType, BlockPos pos, boolean silent) {
         RayTraceResult result = mc.world.rayTraceBlocks ( new Vec3d ( mc.player.posX , mc.player.posY + (double) mc.player.getEyeHeight ( ) , mc.player.posZ ) , new Vec3d ( (double) pos.getX ( ) + 0.5 , (double) pos.getY ( ) - 0.5 , (double) pos.getZ ( ) + 0.5 ) );
         EnumFacing facing = result == null || result.sideHit == null ? EnumFacing.UP : result.sideHit;
-        PacketUtils.sendPacket(packetType, new CPacketPlayerTryUseItemOnBlock( pos , facing , Objects.requireNonNull(InventoryUtils.getEnumHand(Items.END_CRYSTAL)), 0.0f , 0.0f , 0.0f ));
+        if (silent && InventoryUtils.getHotbarItemSlot(Items.END_CRYSTAL) != -1) {
+            PacketUtils.sendPacket(packetType, new CPacketPlayerTryUseItemOnBlock( pos , facing , EnumHand.MAIN_HAND, 0.0f , 0.0f , 0.0f ));
+        } else {
+            PacketUtils.sendPacket(packetType, new CPacketPlayerTryUseItemOnBlock( pos , facing , Objects.requireNonNull(InventoryUtils.getEnumHand(Items.END_CRYSTAL)), 0.0f , 0.0f , 0.0f ));
+        }
     }
 
     public static List<BlockPos> getSphere(BlockPos pos, float r, int h, boolean hollow, boolean sphere, int plus_y) {

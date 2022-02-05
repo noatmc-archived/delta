@@ -29,7 +29,6 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.Objects;
 
 @SuppressWarnings("all")
 public class AutoCrystal extends Module {
@@ -51,7 +50,7 @@ public class AutoCrystal extends Module {
     Setting wallRange = setting("Wall Range", 4.0, 0.1 ,6.0, false);
     Setting antiSuicide = setting("Anti Suicide", false);
     Setting maxSelfDmg = setting("Self Damage", 36.0f, 0.0f, 1000, false);
-//    Setting ignoreSelfDmg = setting("Ignore Self Damage", true);
+    Setting ignoreSelfDmg = setting("Ignore Self Damage", true);
     Setting placeSpeed = setting("Place Speed", 20.0, 0.1, 20.0, false);
     Setting minDamage = setting("Min Damage", 6.0f, 0.0f, 36.0f, false);
     Setting alpha = setting("Alpha", 190, 0, 255, true);
@@ -192,7 +191,7 @@ public class AutoCrystal extends Module {
                     try {
                         int slot = mc.player.inventory.currentItem;
                         if (silent.getBVal()) InventoryUtils.switchToItem(Items.END_CRYSTAL, true);
-                        CrystalUtils.placeCrystalOnBlock(PacketType.valueOf(packetType.getMode()), removed.getPosition().down(1));
+                        CrystalUtils.placeCrystalOnBlock(PacketType.valueOf(packetType.getMode()), removed.getPosition().down(1), silent.getBVal());
                         if (silent.getBVal()) InventoryUtils.switchToSlot(slot, false);
                     } catch (Exception exc) {
                         // exc
@@ -211,14 +210,14 @@ public class AutoCrystal extends Module {
             target = player;
             for (BlockPos pos : CrystalUtils.possiblePlacePosPhobos((float) placeRange.getDVal(), true, false)) {
                 double targetDamage = CrystalUtils.calculateDamagePhobos(pos.getX() + 0.5, pos.getY() + 1, pos.getZ() + 0.5, player);
-//                double selfDamage = CrystalUtils.calculateDamagePhobos(pos.getX() + 0.5, pos.getY() + 1, pos.getZ() + 0.5, mc.player);
+                double selfDamage = CrystalUtils.calculateDamagePhobos(pos.getX() + 0.5, pos.getY() + 1, pos.getZ() + 0.5, mc.player);
 //                if (CrystalUtils.isCrystalStuck(pos) != null) {
 //                    mc.playerController.attackEntity(mc.player, Objects.requireNonNull(CrystalUtils.isCrystalStuck(pos)));
 //                }
 //                if (antiSuicide.getBVal()) {
 //                    if (selfDamage < getSuicideHealth()) continue;
 //                }
-                if (targetDamage > minDamage.getDVal()) {
+                if (targetDamage > minDamage.getDVal() && selfDamage < getSuicideHealth()) {
                     position.add(new Position(targetDamage, pos));
                 }
             }
@@ -232,9 +231,9 @@ public class AutoCrystal extends Module {
         if (antiSuicide.getBVal()) {
             return mc.player.getHealth() + mc.player.getAbsorptionAmount();
         }
-//        if (ignoreSelfDmg.getBVal()) {
-//            return 69420.0;
-//        }
+        if (ignoreSelfDmg.getBVal()) {
+            return 69420.0;
+        }
         return maxSelfDmg.getDVal();
     }
 
@@ -245,15 +244,11 @@ public class AutoCrystal extends Module {
 //            if (rotate.getBVal()) { DeltaCore.rotationManager.rotateToNext(new Rotation(new Vec3d(position.pos), 32, strictRotate.getBVal(), 5)); }
             int slot = mc.player.inventory.currentItem;
             if (silent.getBVal()) InventoryUtils.switchToItem(Items.END_CRYSTAL, true);
-            CrystalUtils.placeCrystalOnBlock(PacketType.valueOf(packetType.getMode()), position.pos);
+            CrystalUtils.placeCrystalOnBlock(PacketType.valueOf(packetType.getMode()), position.pos, silent.getBVal());
             if (silent.getBVal()) InventoryUtils.switchToSlot(slot, true);
             
         } catch (Exception e) {
             // cope
         }
-    }
-
-    public void deez() {
-
     }
 }

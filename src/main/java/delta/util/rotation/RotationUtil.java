@@ -41,13 +41,6 @@ public class RotationUtil implements Wrapper {
         return new float[]{RotationUtil.mc.player.rotationYaw + MathHelper.wrapDegrees ( yaw - RotationUtil.mc.player.rotationYaw ) , RotationUtil.mc.player.rotationPitch + MathHelper.wrapDegrees ( pitch - RotationUtil.mc.player.rotationPitch )};
     }
 
-
-    public static float[] getYawSteppedRotation(Vec3d target, int yawStep){
-        float serverYaw = DeltaCore.rotationManager.getServerYaw();
-        float[] req = getRotations(target.x, target.y, target.z);
-        req[0] = Math.min(yawStep, req[0]);
-        return req;
-    }
     /*
     public static float doYawStep(float current, float target, float step){
         float diff = -getAngleDifference(current, target);
