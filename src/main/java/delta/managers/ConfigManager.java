@@ -13,12 +13,9 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 public class ConfigManager implements Wrapper {
-    File folder = new File(System.getProperty("user.home") + "\\AppData\\Roaming\\delta");
+    File folder = new File(mc.gameDir.getAbsoluteFile() + "/delta");
 
     public void saveModule() throws IOException {
-
-        System.out.println(mc.gameDir.getAbsoluteFile());
-        folder = new File(System.getProperty("user.home") + "\\AppData\\Roaming\\delta");
         for (Module module : DeltaCore.moduleManager.getModules()) {
 
             if (folder.mkdir()) {
