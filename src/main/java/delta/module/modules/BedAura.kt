@@ -4,6 +4,7 @@ import delta.DeltaCore
 import delta.event.TickEvent
 import delta.module.Category
 import delta.module.Module
+import delta.setting.Setting
 import delta.util.CrystalUtils
 import delta.util.MessageUtils
 import delta.util.PlayerUtils
@@ -33,7 +34,8 @@ class BedAura : Module("Bed Aura", "Sleeping in nether on steroids", Category.CO
     val minDamage = setting("Damage", 6.0, 0.0, 36.0, false)
     val switch = setting("Switch", true)
     val silent = setting("Silent", true)
-    val rotate = setting("Rotate", true)
+    val rotate: Setting = setting("Rotate", true)
+    val fastBreak: Setting = setting("Fast Break", true)
     var render: BlockPos? = null
     var damage = 0.0
     companion object {
@@ -70,6 +72,9 @@ class BedAura : Module("Bed Aura", "Sleeping in nether on steroids", Category.CO
     fun onPlayerUpdate(tickEvent: TickEvent.Pre) {
         if (fullNullCheck()) return
         bedPlace()
+        if (!fastBreak.bVal) {
+            render?.let { bedBreak(it) }
+        }
     }
 
     fun bedBreak(pos: BlockPos) {
@@ -101,7 +106,9 @@ class BedAura : Module("Bed Aura", "Sleeping in nether on steroids", Category.CO
                 DeltaCore.rotationManager.setPitch(RotationUtil.getRotations(Vec3d(bed))[0])
             }
             bedHelper.placeBed(bed, EnumFacing.DOWN, switch.bVal, silent.bVal)
-            bedBreak(bed)
+            if (fastBreak.bVal) {
+                bedBreak(bed)
+            }
             render = bed
         }
     }
