@@ -1,23 +1,24 @@
 package delta.module.modules
 
 import delta.event.TickEvent
-import delta.event.TickEvent.Pre
 import delta.module.Category
 import delta.module.Module
 import delta.util.CrystalUtils
+import delta.util.MessageUtils
 import delta.util.PlayerUtils
+import delta.util.RenderUtils
 import delta.util.bed.Bed
-import delta.util.packets.PacketUtils
 import me.bush.eventbus.annotation.EventListener
-import net.minecraft.entity.Entity
 import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.network.play.client.CPacketPlayerTryUseItemOnBlock
-import net.minecraft.tileentity.TileEntityBed
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.EnumHand
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
-import delta.util.BedUtils as bedHelper
+import net.minecraftforge.client.event.RenderWorldLastEvent
+import net.minecraftforge.common.MinecraftForge
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
+import java.awt.Color
+import delta.util.bed.BedUtils as bedHelper
 
 /*
     hi this is noat
@@ -28,11 +29,36 @@ import delta.util.BedUtils as bedHelper
 class BedAura : Module("Bed Aura", "Sleeping in nether on steroids", Category.COMBAT) {
     val range = setting("Range", 6.0, 0.0, 6.0, false)
     val minDamage = setting("Damage", 6.0, 0.0, 36.0, false)
-
+    var render: BlockPos? = null
+    var damage = 0.0
     companion object {
         @JvmStatic
         fun getBedAura(): BedAura {
             return BedAura()
+        }
+    }
+
+    override fun onEnable() {
+        MinecraftForge.EVENT_BUS.register(this)
+    }
+
+    override fun onDisable() {
+        MinecraftForge.EVENT_BUS.unregister(this)
+    }
+
+    @SubscribeEvent
+    fun onRender3d(event: RenderWorldLastEvent) {
+        if (render != null) {
+            RenderUtils.drawBoxESP(
+                render, Color(
+                    255,
+                    0,
+                    0,
+                    100
+                ), 1.0f, true, true, 100, -0.8
+            )
+            RenderUtils.drawText(render, "" + damage)
+
         }
     }
     @EventListener
@@ -41,29 +67,25 @@ class BedAura : Module("Bed Aura", "Sleeping in nether on steroids", Category.CO
         bedPlace()
     }
 
-//    @EventListener
-//    fun onPlayerPostUpdate(tickEvent: TickEvent.Post) {
-//        if (fullNullCheck()) return;
-//        bedBreak();
-//    }
+    fun bedBreak(pos: BlockPos) {
+        mc.playerController.processRightClickBlock(
+            mc.player,
+            mc.world,
+            pos,
+            EnumFacing.DOWN,
+            Vec3d(pos),
+            EnumHand.MAIN_HAND
+        )
 
-//    fun onBedSpawned(bedEntity: TileEntityBed) {
-//        f
-//    }
+    }
 
 
     fun bedPlace() {
         val bed = getOptimalPlacePosition()
         if (bed != null) {
-//            bedHelper.placeBed(bed, EnumFacing.DOWN)
-            mc.playerController?.processRightClickBlock(
-                mc.player,
-                mc.world,
-                bed,
-                EnumFacing.UP,
-                Vec3d(bed),
-                EnumHand.MAIN_HAND
-            )
+            bedHelper.placeBed(bed, EnumFacing.DOWN)
+            bedBreak(bed)
+            render = bed
         }
     }
 
@@ -93,7 +115,13 @@ class BedAura : Module("Bed Aura", "Sleeping in nether on steroids", Category.CO
         }
         if (list.isEmpty()) return null
         list.sortBy { it.bD }
-        return list[0].bP
+        var bedCpe = ""
+        for (bed in list) {
+            bedCpe = bedCpe + "" + bed.bD.toString() + ", "
+        }
+        MessageUtils.sendMessage(bedCpe)
+        damage = list[list.size - 1].bD
+        return list[list.size - 1].bP
 
     }
 }

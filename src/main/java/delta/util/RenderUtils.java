@@ -957,8 +957,9 @@ public class RenderUtils implements Wrapper {
             return;
         }
         GlStateManager.pushMatrix();
-        glBillboardDistanceScaled((float) pos.getX() + 0.7f, (float) pos.getY() + 0.5f, (float) pos.getZ() + 0.7f, RenderUtils.mc.player, 1.0f);
+        glBillboardDistanceScaled(pos.getX() + 0.5f, pos.getY() + 0.5f, pos.getZ() + 0.5f, mc.player, 1.0f);
         GlStateManager.disableDepth();
+        GlStateManager.translate(-(mc.fontRenderer.getStringWidth(text) / 2.0), 0.0, 0.0);
         mc.fontRenderer.drawStringWithShadow(text, 0.0f, 0.0f, -5592406);
         GlStateManager.popMatrix();
     }

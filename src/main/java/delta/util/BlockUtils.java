@@ -1,9 +1,14 @@
 package delta.util;
 
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.item.EntityItem;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static delta.util.Wrapper.mc;
 
 public class BlockUtils {
     public static List<BlockPos> getSphere(BlockPos loc, float r, int h, boolean hollow, boolean sphere, int plus_y) {
@@ -27,5 +32,14 @@ public class BlockUtils {
 
     public static BlockPos getFlooredPos(BlockPos pos) {
         return new BlockPos(Math.floor(pos.getX()), Math.floor(pos.getY()), Math.floor(pos.getZ()));
+    }
+
+    public static boolean intersectsWithEntity(final BlockPos pos) {
+        for (final Entity entity : mc.world.loadedEntityList) {
+            if (entity.equals(mc.player)) continue;
+            if (entity instanceof EntityItem) continue;
+            if (new AxisAlignedBB(pos).intersects(entity.getEntityBoundingBox())) return true;
+        }
+        return false;
     }
 }
