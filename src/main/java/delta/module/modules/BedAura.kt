@@ -1,5 +1,6 @@
 package delta.module.modules
 
+import delta.DeltaCore
 import delta.event.TickEvent
 import delta.module.Category
 import delta.module.Module
@@ -8,6 +9,7 @@ import delta.util.MessageUtils
 import delta.util.PlayerUtils
 import delta.util.RenderUtils
 import delta.util.bed.Bed
+import delta.util.rotation.RotationUtil
 import me.bush.eventbus.annotation.EventListener
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.util.EnumFacing
@@ -29,7 +31,9 @@ import delta.util.bed.BedUtils as bedHelper
 class BedAura : Module("Bed Aura", "Sleeping in nether on steroids", Category.COMBAT) {
     val range = setting("Range", 6.0, 0.0, 6.0, false)
     val minDamage = setting("Damage", 6.0, 0.0, 36.0, false)
+    val switch = setting("Switch", true)
     val silent = setting("Silent", true)
+    val rotate = setting("Rotate", true)
     var render: BlockPos? = null
     var damage = 0.0
     companion object {
@@ -69,6 +73,11 @@ class BedAura : Module("Bed Aura", "Sleeping in nether on steroids", Category.CO
     }
 
     fun bedBreak(pos: BlockPos) {
+        if (rotate.bVal) {
+            DeltaCore.rotationManager.setRotate(true)
+            DeltaCore.rotationManager.setYaw(RotationUtil.getRotations(Vec3d(pos))[0])
+            DeltaCore.rotationManager.setPitch(RotationUtil.getRotations(Vec3d(pos))[0])
+        }
         mc.playerController.processRightClickBlock(
             mc.player,
             mc.world,
@@ -77,14 +86,21 @@ class BedAura : Module("Bed Aura", "Sleeping in nether on steroids", Category.CO
             Vec3d(pos),
             EnumHand.MAIN_HAND
         )
-
+        if (rotate.bVal) {
+            DeltaCore.rotationManager.setRotate(false)
+        }
     }
 
 
     fun bedPlace() {
         val bed = getOptimalPlacePosition()
         if (bed != null) {
-            bedHelper.placeBed(bed, EnumFacing.DOWN, silent.bVal)
+            if (rotate.bVal) {
+                DeltaCore.rotationManager.setRotate(true)
+                DeltaCore.rotationManager.setYaw(RotationUtil.getRotations(Vec3d(bed))[0])
+                DeltaCore.rotationManager.setPitch(RotationUtil.getRotations(Vec3d(bed))[0])
+            }
+            bedHelper.placeBed(bed, EnumFacing.DOWN, switch.bVal, silent.bVal)
             bedBreak(bed)
             render = bed
         }

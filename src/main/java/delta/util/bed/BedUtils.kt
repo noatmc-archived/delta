@@ -34,13 +34,13 @@ class BedUtils  {
         }
 
         @JvmStatic
-        fun placeBed(pos: BlockPos, side: EnumFacing, silent: Boolean) {
+        fun placeBed(pos: BlockPos, side: EnumFacing, switch: Boolean, silent: Boolean) {
             val oldSlot = mc.player.inventory.currentItem
             val neighbour = pos.offset(side)
             val opposite = side.opposite
             val hitVec = Vec3d(neighbour as Vec3i).add(0.5, 0.5, 0.5).add(Vec3d(opposite.directionVec).scale(0.5))
-            if (silent && InventoryUtils.getHotbarItemSlot(Items.BED) != -1) {
-                InventoryUtils.switchToItem(Items.BED, true)
+            if (switch && InventoryUtils.getHotbarItemSlot(Items.BED) != -1) {
+                InventoryUtils.switchToItem(Items.BED, silent)
             }
             mc.playerController.processRightClickBlock(
                 mc.player,
@@ -50,8 +50,8 @@ class BedUtils  {
                 hitVec,
                 EnumHand.MAIN_HAND
             )
-            if (silent && InventoryUtils.getHotbarItemSlot(Items.BED) != -1) {
-                InventoryUtils.switchToSlot(oldSlot, true)
+            if (switch && InventoryUtils.getHotbarItemSlot(Items.BED) != -1) {
+                InventoryUtils.switchToSlot(oldSlot, silent)
             }
 //            mc.player.swingArm(EnumHand.MAIN_HAND)
         }
