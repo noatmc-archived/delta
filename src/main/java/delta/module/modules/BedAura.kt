@@ -29,6 +29,7 @@ import delta.util.bed.BedUtils as bedHelper
 class BedAura : Module("Bed Aura", "Sleeping in nether on steroids", Category.COMBAT) {
     val range = setting("Range", 6.0, 0.0, 6.0, false)
     val minDamage = setting("Damage", 6.0, 0.0, 36.0, false)
+    val silent = setting("Silent", true)
     var render: BlockPos? = null
     var damage = 0.0
     companion object {
@@ -83,7 +84,7 @@ class BedAura : Module("Bed Aura", "Sleeping in nether on steroids", Category.CO
     fun bedPlace() {
         val bed = getOptimalPlacePosition()
         if (bed != null) {
-            bedHelper.placeBed(bed, EnumFacing.DOWN)
+            bedHelper.placeBed(bed, EnumFacing.DOWN, silent.bVal)
             bedBreak(bed)
             render = bed
         }
