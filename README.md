@@ -13,6 +13,7 @@ check [711.club](https://discord.gg/Z9DvrwphAP) out for actual good shit
 ### skid list
 - base : ja's duperman
 - phobos : utils
+- wp2 : fakeplayer (i am 2 lazy to write my own)
 - wp3 : also utils
 - restack : some rotations
 - rommamo : reflections
