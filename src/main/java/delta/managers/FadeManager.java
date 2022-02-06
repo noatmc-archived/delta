@@ -29,7 +29,7 @@ public class FadeManager {
     @SubscribeEvent
     public void onRender3D(RenderWorldLastEvent event) {
 //        if (Wrapper.nullCheck) return;
-        fadePos = Utils.getRemoved(fadePos);
+//        fadePos = Utils.getRemoved(fadePos);
         fadePos.forEach(FadePos::reduce);
         fadePos.removeIf(pos -> pos.alpha == 0);
         for (FadePos pos : fadePos) {

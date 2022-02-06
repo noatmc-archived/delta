@@ -18,6 +18,10 @@ buildscript {
     }
 }
 
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version '1.3.72'
+}
+
 apply plugin: 'net.minecraftforge.gradle.forge'
 apply plugin: 'org.spongepowered.mixin'
 apply plugin: 'com.github.johnrengelman.shadow'
@@ -55,8 +59,16 @@ repositories {
     jcenter()
 }
 
+configurations {
+    // Adds a reference so that we extend/add on to it with depends so we can grab them and compile them into the jar.
+    embed
+    // Grabs what's extended/added on from/to embed and compiles it into the jar when being built.
+    compile.extendsFrom embed
+}
+
+
 dependencies {
-    compile("org.spongepowered:mixin:0.7.11-SNAPSHOT") {
+    embed("org.spongepowered:mixin:0.7.11-SNAPSHOT") {
         exclude module: 'commons-io'
         exclude module: 'gson'
         exclude module: 'guava'
@@ -64,6 +76,7 @@ dependencies {
         exclude module: 'log4j-core'
     }
     compile group: "com.googlecode.json-simple", name: "json-simple", version: "1.1.1"
+    embed('org.jetbrains.kotlin:kotlin-stdlib-jdk8')
 }
 
 processResources {
@@ -95,6 +108,9 @@ reobf {
 }
 
 jar {
+    from(configurations.embed.collect {
+        it.isDirectory() ? it : zipTree(it)
+    })
     manifest {
         attributes(
                 'MixinConfigs': 'mixins.dupermen.json',
@@ -112,6 +128,7 @@ shadowJar {
     dependencies {
         include(dependency('org.spongepowered:mixin'))
         include(dependency('com.googlecode.json-simple:json-simple:1.1.1'))
+        include(dependency('org.jetbrains.kotlin:kotlin-stdlib-jdk8'))
     }
     exclude 'dummyThing', 'LICENSE.txt', 'org/**/*.html', 'META-INF/maven/**'
     classifier = 'release'

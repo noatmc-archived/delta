@@ -21,6 +21,7 @@ public class ModuleManager {
         modules.add(new Effects());
         modules.add(new FakePlayer());
         modules.add(new HUD());
+        modules.add(new BedAura());
         modules.add(new ModifyCrystal());
         modules.add(new RPC());
         modules.add(new TotemPopCounter());

@@ -1,7 +1,10 @@
 package delta.mixin.mixins;
 
 import delta.DeltaCore;
+import delta.module.modules.BedAura;
 import net.minecraft.entity.Entity;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.tileentity.TileEntityBed;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
@@ -16,6 +19,14 @@ public class MixinWorld {
     public void onEntityAdded(Entity entityIn, CallbackInfo cbi) {
         DeltaCore.moduleManager.onEntityAdded(entityIn);
     }
+
+//    @Inject(method = "addTileEntity", at=@At("HEAD"))
+//    public void onTileEntitySpawned(TileEntity tile, CallbackInfoReturnable<Boolean> cir) {
+//        BedAura bedAura = BedAura.getBedAura();
+//        if (bedAura.isToggled() && tile instanceof TileEntityBed) {
+//            bedAura.onBedSpawned((TileEntityBed) tile);
+//        }
+//    }
 
     @Inject(method = "onEntityRemoved", at = @At("HEAD"))
     public void onEntityRemoved(Entity entityIn, CallbackInfo info) {
