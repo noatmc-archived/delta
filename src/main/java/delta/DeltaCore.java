@@ -1,6 +1,5 @@
 package delta;
 
-import delta.command.CommandManager;
 import delta.gui.click.ClickGui;
 import delta.managers.*;
 import me.bush.eventbus.bus.EventBus;

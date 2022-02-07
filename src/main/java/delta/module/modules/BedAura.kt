@@ -10,6 +10,7 @@ import delta.util.MessageUtils
 import delta.util.PlayerUtils
 import delta.util.RenderUtils
 import delta.util.bed.Bed
+import delta.util.friends.Friends
 import delta.util.rotation.RotationUtil
 import me.bush.eventbus.annotation.EventListener
 import net.minecraft.entity.player.EntityPlayer
@@ -97,7 +98,7 @@ class BedAura : Module("Bed Aura", "Sleeping in nether on steroids", Category.CO
     }
 
 
-    fun bedPlace() {
+    private fun bedPlace() {
         val bed = getOptimalPlacePosition()
         if (bed != null) {
             if (rotate.bVal) {
@@ -117,7 +118,7 @@ class BedAura : Module("Bed Aura", "Sleeping in nether on steroids", Category.CO
         var entityPlayer: EntityPlayer?
         val list = mutableListOf<Bed>()
         for (entity in mc.world.playerEntities) {
-            if (entity != mc.player && entity.getDistance(mc.player) <= 11 && !entity.isDead) {
+            if (entity != mc.player && entity.getDistance(mc.player) <= 11 && !entity.isDead && !Friends.isFriend(entity)) {
                 entityPlayer = entity
                 for (pos in CrystalUtils.getSphere(
                     PlayerUtils.getPlayerPos(mc.player),

@@ -10,6 +10,7 @@ import delta.util.*;
 import delta.util.autocrystal.Position;
 import delta.util.autocrystal.Sorter;
 import delta.util.fade.FadePos;
+import delta.util.friends.Friends;
 import delta.util.packets.PacketType;
 import delta.util.rotation.RotationUtil;
 import me.bush.eventbus.annotation.EventListener;
@@ -212,6 +213,7 @@ public class AutoCrystal extends Module {
         ArrayList<Position> position = new ArrayList<>();
         for (EntityPlayer player : mc.world.playerEntities) {
             if (player == mc.player) continue;
+            if (Friends.isFriend(player)) continue;
             if (player.getDistance(mc.player) >= 11) continue; // stops lag
             target = player;
             for (BlockPos pos : CrystalUtils.possiblePlacePosPhobos((float) placeRange.getDVal(), true, false)) {
