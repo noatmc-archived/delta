@@ -2,7 +2,7 @@
 # delta
 bad skid made by a dumbass pt.3
 
-check [The discord server ](https://discord.gg/yr5PrKkWMH) you should join 😉
+check [discord server](https://discord.gg/yr5PrKkWMH), you should join. dev configs in there 😉
 
 check [711.club](https://discord.gg/Z9DvrwphAP) out for actual good shit
 ### hacks
