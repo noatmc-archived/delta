@@ -2,6 +2,7 @@ package delta.managers;
 
 import delta.command.Command;
 import delta.command.commands.Friend;
+import delta.command.commands.MacroC;
 import delta.event.PacketEvent;
 import me.bush.eventbus.annotation.EventListener;
 import net.minecraft.network.play.client.CPacketChatMessage;
@@ -12,6 +13,7 @@ public class CommandManager {
     ArrayList<Command> commands = new ArrayList<>();
     public CommandManager() {
         commands.add(new Friend());
+        commands.add(new MacroC());
     }
     @EventListener
     public void onChat(PacketEvent.Send event) {
