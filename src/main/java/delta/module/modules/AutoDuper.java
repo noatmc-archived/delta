@@ -1,6 +1,7 @@
 package delta.module.modules;
 
 import delta.event.PacketEvent;
+import delta.mixin.mixins.accessor.IGuiShulkerBox;
 import delta.module.Category;
 import delta.module.Module;
 import delta.setting.Setting;
@@ -51,7 +52,7 @@ public class AutoDuper extends Module {
 
     public void onUpdate() {
         if (fullNullCheck() || mode.getMVal() == 1) return;
-        Entity riding = mc.player.ridingEntity;
+        Entity riding = mc.player.getRidingEntity();
         EntityDonkey donkey = null;
         EntityMinecart minecart = null;
         for (Entity entity : mc.world.loadedEntityList) {
@@ -90,8 +91,8 @@ public class AutoDuper extends Module {
             if (mc.currentScreen instanceof GuiChest) {
                 GuiChest container = (GuiChest) mc.currentScreen;
                 for (int i = 54; i < 90; i++) {
-                    Item item = container.inventorySlots.getSlot(i).getStack().item;
-                    if (!(item instanceof ItemBlock && ((ItemBlock) item).block instanceof BlockShulkerBox))
+                    Item item = container.inventorySlots.getSlot(i).getStack().getItem();
+                    if (!(item instanceof ItemBlock && ((ItemBlock) item).getBlock() instanceof BlockShulkerBox))
                         continue;
                     mc.playerController.windowClick(container.inventorySlots.windowId, i, 0, ClickType.QUICK_MOVE, mc.player);
                     return;
@@ -103,13 +104,13 @@ public class AutoDuper extends Module {
             } else {
                 if (mc.currentScreen instanceof GuiScreenHorseInventory) {
                     GuiScreenHorseInventory container = (GuiScreenHorseInventory) mc.currentScreen;
-                    for (int i = 0; i < container.horseInventory.getSizeInventory(); ++i) {
-                        Item item = container.horseInventory.getStackInSlot(i).item;
-                        if (!(item instanceof ItemBlock && ((ItemBlock) item).block instanceof BlockShulkerBox))
+                    for (int i = 0; i < ((IGuiHorseInventory) container).getHorseInventory().getSizeInventory(); ++i) {
+                        Item item = ((IGuiHorseInventory) container).getHorseInventory().getStackInSlot(i).getItem();
+                        if (!(item instanceof ItemBlock && ((ItemBlock) item).getBlock() instanceof BlockShulkerBox))
                             continue;
                         mc.playerController.windowClick(container.inventorySlots.windowId, i, 0, ClickType.QUICK_MOVE, mc.player);
-                        item = container.horseInventory.getStackInSlot(i).item;
-                        if (item instanceof ItemBlock && ((ItemBlock) item).block instanceof BlockShulkerBox) mc.playerController.windowClick(container.inventorySlots.windowId, i, 0, ClickType.THROW, mc.player);
+                        item = ((IGuiHorseInventory) container).getHorseInventory().getStackInSlot(i).getItem();
+                        if (item instanceof ItemBlock && ((ItemBlock) item).getBlock() instanceof BlockShulkerBox) mc.playerController.windowClick(container.inventorySlots.windowId, i, 0, ClickType.THROW, mc.player);
                         return;
                     }
                     mc.player.connection.sendPacket(new CPacketAnimation(EnumHand.MAIN_HAND));
@@ -141,8 +142,8 @@ public class AutoDuper extends Module {
             if (cancel && (packet instanceof CPacketPlayer || packet instanceof CPacketVehicleMove)) event.setCancelled(true);
             else if (packet instanceof CPacketPlayerDigging && ((CPacketPlayerDigging) packet).action == CPacketPlayerDigging.Action.STOP_DESTROY_BLOCK && mc.currentScreen instanceof GuiShulkerBox) {
                 GuiShulkerBox shulker = (GuiShulkerBox) mc.currentScreen;
-                for (int i = 0; i < shulker.inventory.getSizeInventory(); ++i) {
-                    Item item = shulker.inventorySlots.getSlot(i).getStack().item;
+                for (int i = 0; i < ((IGuiShulkerBox) shulker).getInventory().getSizeInventory(); ++i) {
+                    Item item = shulker.inventorySlots.getSlot(i).getStack().getItem();
                     if (item != Items.AIR) mc.playerController.windowClick(shulker.inventorySlots.windowId, i, 0, ClickType.QUICK_MOVE, mc.player);
                 }
             }

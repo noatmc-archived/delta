@@ -2,6 +2,7 @@ package delta.managers;
 
 
 import delta.event.PacketEvent;
+import delta.mixin.mixins.accessor.ICPacketPlayer;
 import delta.util.Wrapper;
 import me.bush.eventbus.annotation.EventListener;
 import net.minecraft.network.play.client.CPacketPlayer;
@@ -21,8 +22,8 @@ public class RotationManager implements Wrapper {
     @EventListener
     public void onPacketSent(PacketEvent.Send event) {
         if (event.getPacket() instanceof CPacketPlayer && shouldRotate) {
-            ((CPacketPlayer) event.getPacket()).yaw = this.yaw;
-            ((CPacketPlayer) event.getPacket()).pitch = this.pitch;
+            ((ICPacketPlayer) event.getPacket()).setYaw(this.yaw);
+            ((ICPacketPlayer) event.getPacket()).setPitch(this.pitch);
         }
     }
 }

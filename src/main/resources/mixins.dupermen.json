@@ -6,12 +6,16 @@
   "mixins": [
     "MixinEntityPlayerSP",
     "MixinNetworkManager",
-    "MixinWorld"
+    "MixinWorld",
+    "accessor.ICPacketChatMessage",
+    "accessor.ICPacketPlayer"
   ],
   "client": [
     "MixinEntityRenderer",
     "MixinGuiIngameForge",
     "MixinNetHandlerPlayClient",
-    "MixinRenderEnderCrystal"
+    "MixinRenderEnderCrystal",
+    "accessor.IGuiShulkerBox",
+    "accessor.IRenderManager"
   ]
 }
