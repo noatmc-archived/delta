@@ -28,6 +28,19 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class CrystalUtils implements Wrapper {
+
+    public static Boolean getArmourFucker(EntityPlayer player, float percent) {
+        for (ItemStack stack : player.getArmorInventoryList()) {
+            if (stack == null || stack.getItem() == Items.AIR) return true;
+
+            float armourPercent = ((float) (stack.getMaxDamage() - stack.getItemDamage()) /
+                    (float) stack.getMaxDamage()) * 100f;
+
+            if (percent >= armourPercent && stack.stackSize < 2) return true;
+        }
+        return false;
+    }
+
     public static boolean rayTraceSolidCheck(Vec3d start, Vec3d end, boolean shouldIgnore) {
         if (!Double.isNaN(start.x) && !Double.isNaN(start.y) && !Double.isNaN(start.z)) {
             if (!Double.isNaN(end.x) && !Double.isNaN(end.y) && !Double.isNaN(end.z)) {

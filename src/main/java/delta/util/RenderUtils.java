@@ -1,6 +1,6 @@
 package delta.util;
 
-import delta.mixin.mixins.accessor.IRenderManager;
+import delta.util.Wrapper;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.BufferBuilder;
@@ -19,6 +19,7 @@ import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
@@ -27,6 +28,7 @@ import static org.lwjgl.opengl.GL11.*;
 public class RenderUtils implements Wrapper {
 
     private final static Map<Integer, Boolean> glCapMap = new HashMap<>();
+
     public static ICamera camera = new Frustum();
 
 
@@ -166,7 +168,7 @@ public class RenderUtils implements Wrapper {
 
 
     public static AxisAlignedBB interpolateAxis(AxisAlignedBB bb) {
-        return new AxisAlignedBB(bb.minX - mc.getRenderManager().viewerPosX, bb.minY - mc.getRenderManager().viewerPosY, bb.minZ - mc.getRenderManager().viewerPosZ, bb.maxX - mc.getRenderManager().viewerPosX, bb.maxY - mc.getRenderManager().viewerPosY, bb.maxZ - mc.getRenderManager().viewerPosZ);
+        return new AxisAlignedBB(bb.minX - RenderUtils.mc.getRenderManager().viewerPosX, bb.minY - RenderUtils.mc.getRenderManager().viewerPosY, bb.minZ - RenderUtils.mc.getRenderManager().viewerPosZ, bb.maxX - RenderUtils.mc.getRenderManager().viewerPosX, bb.maxY - RenderUtils.mc.getRenderManager().viewerPosY, bb.maxZ - RenderUtils.mc.getRenderManager().viewerPosZ);
     }
 
     public static void drawRect(float x, float y, float w, float h, int color) {
@@ -260,7 +262,7 @@ public class RenderUtils implements Wrapper {
             Vec3d interp = PlayerUtils.interpolateEntity(RenderUtils.mc.player, mc.getRenderPartialTicks());
             AxisAlignedBB bb = iblockstate.getSelectedBoundingBox(RenderUtils.mc.world, pos).grow(0.002f).offset(-interp.x, -interp.y, -interp.z);
             camera.setPosition(Objects.requireNonNull(RenderUtils.mc.getRenderViewEntity()).posX, RenderUtils.mc.getRenderViewEntity().posY, RenderUtils.mc.getRenderViewEntity().posZ);
-            if (camera.isBoundingBoxInFrustum(new AxisAlignedBB(bb.minX + mc.getRenderManager().viewerPosX, bb.minY + mc.getRenderManager().viewerPosY, bb.minZ + mc.getRenderManager().viewerPosZ, bb.maxX + mc.getRenderManager().viewerPosX, bb.maxY + mc.getRenderManager().viewerPosY, bb.maxZ + mc.getRenderManager().viewerPosZ))) {
+            if (camera.isBoundingBoxInFrustum(new AxisAlignedBB(bb.minX + RenderUtils.mc.getRenderManager().viewerPosX, bb.minY + RenderUtils.mc.getRenderManager().viewerPosY, bb.minZ + RenderUtils.mc.getRenderManager().viewerPosZ, bb.maxX + RenderUtils.mc.getRenderManager().viewerPosX, bb.maxY + RenderUtils.mc.getRenderManager().viewerPosY, bb.maxZ + RenderUtils.mc.getRenderManager().viewerPosZ))) {
                 GlStateManager.pushMatrix();
                 GlStateManager.enableBlend();
                 GlStateManager.disableDepth();
@@ -382,7 +384,7 @@ public class RenderUtils implements Wrapper {
         }
         IBlockState iblockstate = RenderUtils.mc.world.getBlockState(pos);
         if ((air || iblockstate.getMaterial() != Material.AIR) && RenderUtils.mc.world.getWorldBorder().contains(pos)) {
-            AxisAlignedBB blockAxis = new AxisAlignedBB((double) pos.getX() - mc.getRenderManager().viewerPosX, (double) pos.getY() - mc.getRenderManager().viewerPosY, (double) pos.getZ() - mc.getRenderManager().viewerPosZ, (double) (pos.getX() + 1) - mc.getRenderManager().viewerPosX, (double) (pos.getY() + 1) - mc.getRenderManager().viewerPosY + height, (double) (pos.getZ() + 1) - mc.getRenderManager().viewerPosZ);
+            AxisAlignedBB blockAxis = new AxisAlignedBB((double) pos.getX() - RenderUtils.mc.getRenderManager().viewerPosX, (double) pos.getY() - RenderUtils.mc.getRenderManager().viewerPosY, (double) pos.getZ() - RenderUtils.mc.getRenderManager().viewerPosZ, (double) (pos.getX() + 1) - RenderUtils.mc.getRenderManager().viewerPosX, (double) (pos.getY() + 1) - RenderUtils.mc.getRenderManager().viewerPosY + height, (double) (pos.getZ() + 1) - RenderUtils.mc.getRenderManager().viewerPosZ);
             drawBlockOutline(blockAxis.grow(0.002f), color, linewidth);
         }
     }
@@ -772,9 +774,9 @@ public class RenderUtils implements Wrapper {
             drawOpenGradientBox(pos, invert ? endColor : color, invert ? color : endColor, height);
             return;
         }
-        AxisAlignedBB bb = new AxisAlignedBB((double) pos.getX() - mc.getRenderManager().viewerPosX, (double) pos.getY() - mc.getRenderManager().viewerPosY, (double) pos.getZ() - mc.getRenderManager().viewerPosZ, (double) (pos.getX() + 1) - mc.getRenderManager().viewerPosX, (double) (pos.getY() + 1) - mc.getRenderManager().viewerPosY + height, (double) (pos.getZ() + 1) - mc.getRenderManager().viewerPosZ);
+        AxisAlignedBB bb = new AxisAlignedBB((double) pos.getX() - RenderUtils.mc.getRenderManager().viewerPosX, (double) pos.getY() - RenderUtils.mc.getRenderManager().viewerPosY, (double) pos.getZ() - RenderUtils.mc.getRenderManager().viewerPosZ, (double) (pos.getX() + 1) - RenderUtils.mc.getRenderManager().viewerPosX, (double) (pos.getY() + 1) - RenderUtils.mc.getRenderManager().viewerPosY + height, (double) (pos.getZ() + 1) - RenderUtils.mc.getRenderManager().viewerPosZ);
         camera.setPosition(Objects.requireNonNull(RenderUtils.mc.getRenderViewEntity()).posX, RenderUtils.mc.getRenderViewEntity().posY, RenderUtils.mc.getRenderViewEntity().posZ);
-        if (camera.isBoundingBoxInFrustum(new AxisAlignedBB(bb.minX + mc.getRenderManager().viewerPosX, bb.minY + mc.getRenderManager().viewerPosY, bb.minZ + mc.getRenderManager().viewerPosZ, bb.maxX + mc.getRenderManager().viewerPosX, bb.maxY + mc.getRenderManager().viewerPosY, bb.maxZ + mc.getRenderManager().viewerPosZ))) {
+        if (camera.isBoundingBoxInFrustum(new AxisAlignedBB(bb.minX + RenderUtils.mc.getRenderManager().viewerPosX, bb.minY + RenderUtils.mc.getRenderManager().viewerPosY, bb.minZ + RenderUtils.mc.getRenderManager().viewerPosZ, bb.maxX + RenderUtils.mc.getRenderManager().viewerPosX, bb.maxY + RenderUtils.mc.getRenderManager().viewerPosY, bb.maxZ + RenderUtils.mc.getRenderManager().viewerPosZ))) {
             GlStateManager.pushMatrix();
             GlStateManager.enableBlend();
             GlStateManager.disableDepth();
@@ -794,9 +796,9 @@ public class RenderUtils implements Wrapper {
     }
 
     public static void drawBBBox(AxisAlignedBB BB, Color Color, int alpha) {
-        AxisAlignedBB bb = new AxisAlignedBB(BB.minX - mc.getRenderManager().viewerPosX, BB.minY - mc.getRenderManager().viewerPosY, BB.minZ - mc.getRenderManager().viewerPosZ, BB.maxX - mc.getRenderManager().viewerPosX, BB.maxY - mc.getRenderManager().viewerPosY, BB.maxZ - mc.getRenderManager().viewerPosZ);
+        AxisAlignedBB bb = new AxisAlignedBB(BB.minX - RenderUtils.mc.getRenderManager().viewerPosX, BB.minY - RenderUtils.mc.getRenderManager().viewerPosY, BB.minZ - RenderUtils.mc.getRenderManager().viewerPosZ, BB.maxX - RenderUtils.mc.getRenderManager().viewerPosX, BB.maxY - RenderUtils.mc.getRenderManager().viewerPosY, BB.maxZ - RenderUtils.mc.getRenderManager().viewerPosZ);
         camera.setPosition(Objects.requireNonNull(RenderUtils.mc.getRenderViewEntity()).posX, RenderUtils.mc.getRenderViewEntity().posY, RenderUtils.mc.getRenderViewEntity().posZ);
-        if (camera.isBoundingBoxInFrustum(new AxisAlignedBB(bb.minX + mc.getRenderManager().viewerPosX, bb.minY + mc.getRenderManager().viewerPosY, bb.minZ + mc.getRenderManager().viewerPosZ, bb.maxX + mc.getRenderManager().viewerPosX, bb.maxY + mc.getRenderManager().viewerPosY, bb.maxZ + mc.getRenderManager().viewerPosZ))) {
+        if (camera.isBoundingBoxInFrustum(new AxisAlignedBB(bb.minX + RenderUtils.mc.getRenderManager().viewerPosX, bb.minY + RenderUtils.mc.getRenderManager().viewerPosY, bb.minZ + RenderUtils.mc.getRenderManager().viewerPosZ, bb.maxX + RenderUtils.mc.getRenderManager().viewerPosX, bb.maxY + RenderUtils.mc.getRenderManager().viewerPosY, bb.maxZ + RenderUtils.mc.getRenderManager().viewerPosZ))) {
             GlStateManager.pushMatrix();
             GlStateManager.enableBlend();
             GlStateManager.disableDepth();
@@ -974,7 +976,7 @@ public class RenderUtils implements Wrapper {
 
     public static void glBillboard(float x, float y, float z) {
         float scale = 0.02666667f;
-        GlStateManager.translate((double) x - ((IRenderManager) mc.getRenderManager()).getRenderPosX(), (double) y - ((IRenderManager) mc.getRenderManager()).getRenderPosY(), (double) z - ((IRenderManager) mc.getRenderManager()).getRenderPosZ());
+        GlStateManager.translate((double) x - RenderUtils.mc.getRenderManager().renderPosX, (double) y - RenderUtils.mc.getRenderManager().renderPosY, (double) z - RenderUtils.mc.getRenderManager().renderPosZ);
         GlStateManager.glNormal3f(0.0f, 1.0f, 0.0f);
         GlStateManager.rotate(-RenderUtils.mc.player.rotationYaw, 0.0f, 1.0f, 0.0f);
         GlStateManager.rotate(RenderUtils.mc.player.rotationPitch, RenderUtils.mc.gameSettings.thirdPersonView == 2 ? -1.0f : 1.0f, 0.0f, 0.0f);
@@ -1031,12 +1033,12 @@ public class RenderUtils implements Wrapper {
 
     public static void drawGlError(BlockPos pos, double height, double length, double width, Color color){
 
-        AxisAlignedBB bb = new AxisAlignedBB((double) pos.getX() - mc.getRenderManager().viewerPosX, (double) pos.getY() - mc.getRenderManager().viewerPosY,
-                (double) pos.getZ() - mc.getRenderManager().viewerPosZ,
-                (double) (pos.getX() + 1) - mc.getRenderManager().viewerPosX,
-                (double) (pos.getY() + 1) - mc.getRenderManager().viewerPosY, (double) (pos.getZ() + 1) - mc.getRenderManager().viewerPosZ);
+        AxisAlignedBB bb = new AxisAlignedBB((double) pos.getX() - RenderUtils.mc.getRenderManager().viewerPosX, (double) pos.getY() - RenderUtils.mc.getRenderManager().viewerPosY,
+                (double) pos.getZ() - RenderUtils.mc.getRenderManager().viewerPosZ,
+                (double) (pos.getX() + 1) - RenderUtils.mc.getRenderManager().viewerPosX,
+                (double) (pos.getY() + 1) - RenderUtils.mc.getRenderManager().viewerPosY, (double) (pos.getZ() + 1) - RenderUtils.mc.getRenderManager().viewerPosZ);
         camera.setPosition(Objects.requireNonNull(RenderUtils.mc.getRenderViewEntity()).posX, RenderUtils.mc.getRenderViewEntity().posY, RenderUtils.mc.getRenderViewEntity().posZ);
-        if (camera.isBoundingBoxInFrustum(new AxisAlignedBB(bb.minX + mc.getRenderManager().viewerPosX, bb.minY + mc.getRenderManager().viewerPosY, bb.minZ + mc.getRenderManager().viewerPosZ, bb.maxX + mc.getRenderManager().viewerPosX, bb.maxY + mc.getRenderManager().viewerPosY, bb.maxZ + mc.getRenderManager().viewerPosZ))) {
+        if (camera.isBoundingBoxInFrustum(new AxisAlignedBB(bb.minX + RenderUtils.mc.getRenderManager().viewerPosX, bb.minY + RenderUtils.mc.getRenderManager().viewerPosY, bb.minZ + RenderUtils.mc.getRenderManager().viewerPosZ, bb.maxX + RenderUtils.mc.getRenderManager().viewerPosX, bb.maxY + RenderUtils.mc.getRenderManager().viewerPosY, bb.maxZ + RenderUtils.mc.getRenderManager().viewerPosZ))) {
             Tessellator t = Tessellator.getInstance();
             BufferBuilder bufferbuilder = t.getBuffer();
             bufferbuilder.begin(GL_LINE_STRIP, DefaultVertexFormats.POSITION_COLOR);
@@ -1111,12 +1113,12 @@ public class RenderUtils implements Wrapper {
         //Vec3d interpPos = PlayerUtils.getInterpolatedPos(RenderUtils.mc.player, RenderUtils.mc.getRenderPartialTicks());
         BlockPos pos = new BlockPos(x, y, z);
         //AxisAlignedBB bb = iblockstate.getSelectedBoundingBox(RenderUtils.mc.world, new BlockPos(x, y, z)).offset(-interpPos.x, -interpPos.y, -interpPos.z);
-        AxisAlignedBB bb = new AxisAlignedBB((double) pos.getX() - mc.getRenderManager().viewerPosX, (double) pos.getY() - mc.getRenderManager().viewerPosY,
-                (double) pos.getZ() - mc.getRenderManager().viewerPosZ,
-                (double) (pos.getX() + 1) - mc.getRenderManager().viewerPosX,
-                (double) (pos.getY() + 1) - mc.getRenderManager().viewerPosY, (double) (pos.getZ() + 1) - mc.getRenderManager().viewerPosZ);
+        AxisAlignedBB bb = new AxisAlignedBB((double) pos.getX() - RenderUtils.mc.getRenderManager().viewerPosX, (double) pos.getY() - RenderUtils.mc.getRenderManager().viewerPosY,
+                (double) pos.getZ() - RenderUtils.mc.getRenderManager().viewerPosZ,
+                (double) (pos.getX() + 1) - RenderUtils.mc.getRenderManager().viewerPosX,
+                (double) (pos.getY() + 1) - RenderUtils.mc.getRenderManager().viewerPosY, (double) (pos.getZ() + 1) - RenderUtils.mc.getRenderManager().viewerPosZ);
         camera.setPosition(Objects.requireNonNull(RenderUtils.mc.getRenderViewEntity()).posX, RenderUtils.mc.getRenderViewEntity().posY, RenderUtils.mc.getRenderViewEntity().posZ);
-        if (camera.isBoundingBoxInFrustum(new AxisAlignedBB(bb.minX + mc.getRenderManager().viewerPosX, bb.minY + mc.getRenderManager().viewerPosY, bb.minZ + mc.getRenderManager().viewerPosZ, bb.maxX + mc.getRenderManager().viewerPosX, bb.maxY + mc.getRenderManager().viewerPosY, bb.maxZ + mc.getRenderManager().viewerPosZ))) {
+        if (camera.isBoundingBoxInFrustum(new AxisAlignedBB(bb.minX + RenderUtils.mc.getRenderManager().viewerPosX, bb.minY + RenderUtils.mc.getRenderManager().viewerPosY, bb.minZ + RenderUtils.mc.getRenderManager().viewerPosZ, bb.maxX + RenderUtils.mc.getRenderManager().viewerPosX, bb.maxY + RenderUtils.mc.getRenderManager().viewerPosY, bb.maxZ + RenderUtils.mc.getRenderManager().viewerPosZ))) {
             drawCircleVertices(bb, radius, Color);
         }
     }
@@ -1127,13 +1129,13 @@ public class RenderUtils implements Wrapper {
 
 
         BlockPos pos = new BlockPos(x, y, z);
-        AxisAlignedBB bb = new AxisAlignedBB((double) pos.getX() - mc.getRenderManager().viewerPosX, (double) pos.getY() - mc.getRenderManager().viewerPosY,
-                (double) pos.getZ() - mc.getRenderManager().viewerPosZ,
-                (double) (pos.getX() + 1) - mc.getRenderManager().viewerPosX,
-                (double) (pos.getY() + 1) - mc.getRenderManager().viewerPosY, (double) (pos.getZ() + 1) - mc.getRenderManager().viewerPosZ);
+        AxisAlignedBB bb = new AxisAlignedBB((double) pos.getX() - RenderUtils.mc.getRenderManager().viewerPosX, (double) pos.getY() - RenderUtils.mc.getRenderManager().viewerPosY,
+                (double) pos.getZ() - RenderUtils.mc.getRenderManager().viewerPosZ,
+                (double) (pos.getX() + 1) - RenderUtils.mc.getRenderManager().viewerPosX,
+                (double) (pos.getY() + 1) - RenderUtils.mc.getRenderManager().viewerPosY, (double) (pos.getZ() + 1) - RenderUtils.mc.getRenderManager().viewerPosZ);
         camera.setPosition(Objects.requireNonNull(RenderUtils.mc.getRenderViewEntity()).posX, RenderUtils.mc.getRenderViewEntity().posY, RenderUtils.mc.getRenderViewEntity().posZ);
 
-        if (camera.isBoundingBoxInFrustum(new AxisAlignedBB(bb.minX + mc.getRenderManager().viewerPosX, bb.minY + mc.getRenderManager().viewerPosY, bb.minZ + mc.getRenderManager().viewerPosZ, bb.maxX + mc.getRenderManager().viewerPosX, bb.maxY + mc.getRenderManager().viewerPosY, bb.maxZ + mc.getRenderManager().viewerPosZ))) {
+        if (camera.isBoundingBoxInFrustum(new AxisAlignedBB(bb.minX + RenderUtils.mc.getRenderManager().viewerPosX, bb.minY + RenderUtils.mc.getRenderManager().viewerPosY, bb.minZ + RenderUtils.mc.getRenderManager().viewerPosZ, bb.maxX + RenderUtils.mc.getRenderManager().viewerPosX, bb.maxY + RenderUtils.mc.getRenderManager().viewerPosY, bb.maxZ + RenderUtils.mc.getRenderManager().viewerPosZ))) {
             for (int i =0; i<=amount;i++) {
                 bb = new AxisAlignedBB(bb.minX, bb.minY + Hincrement*i , bb.minZ, bb.maxX, bb.maxY+ Hincrement*i, bb.maxZ);
                 drawCircleVertices(bb, Rincrement*i, Color);

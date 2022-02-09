@@ -7,9 +7,9 @@ import net.minecraft.util.EnumHand;
 
 public class InventoryUtils implements Wrapper {
     public static EnumHand getEnumHand(Item item) {
-        if (mc.player.getHeldItemMainhand().getItem() == item) {
+        if (mc.player.getHeldItemMainhand().item == item) {
             return EnumHand.MAIN_HAND;
-        } else if (mc.player.getHeldItemOffhand().getItem() == item) {
+        } else if (mc.player.getHeldItemOffhand().item == item) {
             return EnumHand.OFF_HAND;
         }
         return null;

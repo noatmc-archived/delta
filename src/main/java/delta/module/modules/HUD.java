@@ -38,7 +38,7 @@ public class HUD extends Module {
 //        GlStateManager.scale(2.5, 2.5, 2.5);
 //        mc.fontRenderer.drawString("Delta", 7, 7, new Color(0,0,0).hashCode());
 //        GlStateManager.scale(0.5, 0.5, 1);
-        mc.fontRenderer.drawString("[ Delta - welcome to the botnet " + mc.getSession().getUsername() + " ]", 10, 10, new Color(255, 255, 255).hashCode());
+        mc.fontRenderer.drawString("[ Delta - welcome to the botnet " + mc.session.getUsername() + " ]", 10, 10, new Color(255, 255, 255).hashCode());
     }
 
     public ArrayList<Module> getSorted() {

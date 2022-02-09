@@ -4,7 +4,6 @@ import delta.command.Command;
 import delta.command.commands.Friend;
 import delta.command.commands.MacroC;
 import delta.event.PacketEvent;
-import delta.mixin.mixins.accessor.ICPacketChatMessage;
 import me.bush.eventbus.annotation.EventListener;
 import net.minecraft.network.play.client.CPacketChatMessage;
 
@@ -19,12 +18,11 @@ public class CommandManager {
     @EventListener
     public void onChat(PacketEvent.Send event) {
         if (event.getPacket() instanceof CPacketChatMessage) {
-            CPacketChatMessage packet = (CPacketChatMessage) event.getPacket();
-            if (((ICPacketChatMessage) packet).getMessage().startsWith("=")) {
+            if (((CPacketChatMessage) event.getPacket()).message.startsWith("=")) {
                 event.setCancelled(true);
                 for (Command command : commands) {
-                    if (((ICPacketChatMessage) packet).getMessage().contains(command.getName())) {
-                        command.command(((ICPacketChatMessage) packet).getMessage());
+                    if (((CPacketChatMessage) event.getPacket()).message.contains(command.getName())) {
+                        command.command(((CPacketChatMessage) event.getPacket()).message);
                     }
                 }
             }
