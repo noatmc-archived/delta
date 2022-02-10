@@ -26,6 +26,7 @@ public class ModuleManager {
         modules.add(new RPC());
         modules.add(new TotemPopCounter());
         modules.add(new Velocity());
+        modules.add(new CityAlert());
     }
 
     public ArrayList<Module> getModules() {
