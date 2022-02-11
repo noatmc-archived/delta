@@ -279,13 +279,15 @@ public class CrystalUtils implements Wrapper {
         return positions;
     }
 
-    public static void placeCrystalOnBlock(PacketType packetType, BlockPos pos, boolean silent) {
+    public static void placeCrystalOnBlock(PacketType packetType, BlockPos pos, boolean silent, boolean swing) {
         RayTraceResult result = mc.world.rayTraceBlocks ( new Vec3d ( mc.player.posX , mc.player.posY + (double) mc.player.getEyeHeight ( ) , mc.player.posZ ) , new Vec3d ( (double) pos.getX ( ) + 0.5 , (double) pos.getY ( ) - 0.5 , (double) pos.getZ ( ) + 0.5 ) );
         EnumFacing facing = result == null || result.sideHit == null ? EnumFacing.UP : result.sideHit;
         if (silent && InventoryUtils.getHotbarItemSlot(Items.END_CRYSTAL) != -1) {
             PacketUtils.sendPacket(packetType, new CPacketPlayerTryUseItemOnBlock( pos , facing , EnumHand.MAIN_HAND, 0.0f , 0.0f , 0.0f ));
+            if (swing) mc.player.swingArm(EnumHand.MAIN_HAND);
         } else {
             PacketUtils.sendPacket(packetType, new CPacketPlayerTryUseItemOnBlock( pos , facing , Objects.requireNonNull(InventoryUtils.getEnumHand(Items.END_CRYSTAL)), 0.0f , 0.0f , 0.0f ));
+            if (swing) mc.player.swingArm(Objects.requireNonNull(InventoryUtils.getEnumHand(Items.END_CRYSTAL)));
         }
     }
 

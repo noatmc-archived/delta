@@ -101,7 +101,7 @@ public class Module {
     }
 
     public String getFullString() {
-        return this.name + (getHudString() != null ? "[" + getHudString() + "]" : "");
+        return this.name + "" + (getHudString() != null ? getHudString() : "");
     }
 
     public void onUpdate() {

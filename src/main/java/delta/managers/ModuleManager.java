@@ -1,5 +1,6 @@
 package delta.managers;
 
+import delta.DeltaCore;
 import delta.event.TickEvent;
 import delta.module.Module;
 import delta.module.modules.*;
@@ -9,6 +10,8 @@ import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
 
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.stream.Collectors;
 
 public class ModuleManager {
     ArrayList<Module> modules = new ArrayList<>();
@@ -39,6 +42,10 @@ public class ModuleManager {
             if (mod.isToggled()) a.add(mod);
         }
         return a;
+    }
+
+    public ArrayList<Module> sorted() {
+        return (ArrayList<Module>) getEnabledModules().stream().sorted(Comparator.comparing(t-> DeltaCore.fontRenderer.getStringWidth(t.getFullString()))).collect(Collectors.toList());
     }
 
     @EventListener(priority = ListenerPriority.HIGHEST)

@@ -18,6 +18,8 @@ public class MessageUtils implements Wrapper{
         }
     }
 
+
+
     public static void sendRainbowMessage(String message) {
         StringBuilder stringBuilder = new StringBuilder(message);
         stringBuilder.insert(0, "\u00a7+");

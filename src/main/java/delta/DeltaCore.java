@@ -2,10 +2,14 @@ package delta;
 
 import delta.gui.click.ClickGui;
 import delta.managers.*;
+import delta.util.customfont.CFont;
+import delta.util.customfont.CFontRenderer;
 import me.bush.eventbus.bus.EventBus;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+
+import java.awt.*;
 
 @net.minecraftforge.fml.common.Mod(modid = DeltaCore.MOD_ID, name = DeltaCore.NAME, version = DeltaCore.VERSION)
 public class DeltaCore {
@@ -26,6 +30,7 @@ public class DeltaCore {
     public static EventManager eventManager;
     public static FadeManager fadeManager;
     public static MacroManager macroManager;
+    public static CFontRenderer fontRenderer;
 
     @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
@@ -41,6 +46,7 @@ public class DeltaCore {
         eventManager = new EventManager();
         fadeManager = new FadeManager();
         clickGui = new ClickGui();
+        fontRenderer = new CFontRenderer(new Font("Verdana", Font.PLAIN, 18), true, true);
         EVENT_BUS.subscribe(totemPopManager);
         EVENT_BUS.subscribe(moduleManager);
         EVENT_BUS.subscribe(commandManager);

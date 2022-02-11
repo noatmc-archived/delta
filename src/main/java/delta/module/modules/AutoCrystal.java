@@ -20,9 +20,7 @@ import net.minecraft.entity.item.EntityEnderCrystal;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.init.SoundEvents;
-import net.minecraft.network.play.server.SPacketBlockChange;
 import net.minecraft.network.play.server.SPacketSoundEffect;
-import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
@@ -101,7 +99,7 @@ public class AutoCrystal extends Module {
                 if (target != null) {
                     if (mc.player.getDistance(((SPacketSoundEffect) event.getPacket()).getX(), ((SPacketSoundEffect) event.getPacket()).getY(), ((SPacketSoundEffect) event.getPacket()).getZ()) <= 6.0f && PlayerUtils.getCityableBlocks(target).contains(new BlockPos(((SPacketSoundEffect) event.getPacket()).getX(), ((SPacketSoundEffect) event.getPacket()).getY(), ((SPacketSoundEffect) event.getPacket()).getZ()))) {
                         MessageUtils.sendMessage("[noat logger] - citying");
-                        CrystalUtils.placeCrystalOnBlock(PacketType.valueOf(packetType.getMode()), new BlockPos(((SPacketSoundEffect) event.getPacket()).getX(), ((SPacketSoundEffect) event.getPacket()).getY(), ((SPacketSoundEffect) event.getPacket()).getZ()), silent.getBVal());
+                        CrystalUtils.placeCrystalOnBlock(PacketType.valueOf(packetType.getMode()), new BlockPos(((SPacketSoundEffect) event.getPacket()).getX(), ((SPacketSoundEffect) event.getPacket()).getY(), ((SPacketSoundEffect) event.getPacket()).getZ()), silent.getBVal(), swing.getBVal());
                     }
                 }
             }
@@ -146,7 +144,6 @@ public class AutoCrystal extends Module {
                     }
                     mc.playerController.attackEntity(mc.player, crystal);
                     if (sync.getBVal()) crystal.setDead();
-                    if (swing.getBVal()) mc.player.swingArm(EnumHand.OFF_HAND);
                     attackedCrystal.add((EntityEnderCrystal) crystal);
                     DeltaCore.rotationManager.setRotate(false);
                 }
@@ -206,7 +203,7 @@ public class AutoCrystal extends Module {
                     try {
                         int slot = mc.player.inventory.currentItem;
                         if (silent.getBVal()) InventoryUtils.switchToItem(Items.END_CRYSTAL, true);
-                        CrystalUtils.placeCrystalOnBlock(PacketType.valueOf(packetType.getMode()), removed.getPosition().down(1), silent.getBVal());
+                        CrystalUtils.placeCrystalOnBlock(PacketType.valueOf(packetType.getMode()), removed.getPosition().down(1), silent.getBVal(), swing.getBVal());
                         if (silent.getBVal()) InventoryUtils.switchToSlot(slot, false);
                     } catch (Exception exc) {
                         // exc
@@ -264,7 +261,7 @@ public class AutoCrystal extends Module {
             }
             int slot = mc.player.inventory.currentItem;
             if (silent.getBVal()) InventoryUtils.switchToItem(Items.END_CRYSTAL, true);
-            CrystalUtils.placeCrystalOnBlock(PacketType.valueOf(packetType.getMode()), position.pos, silent.getBVal());
+            CrystalUtils.placeCrystalOnBlock(PacketType.valueOf(packetType.getMode()), position.pos, silent.getBVal(), swing.getBVal());
             if (silent.getBVal()) InventoryUtils.switchToSlot(slot, true);
             if (fade.getBVal()) DeltaCore.fadeManager.addFadePos(new FadePos(position.pos, new Color((int) r.getDVal(), (int) g.getDVal(), (int) b.getDVal())));
         } catch (Exception e) {

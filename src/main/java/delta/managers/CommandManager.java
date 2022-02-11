@@ -1,6 +1,7 @@
 package delta.managers;
 
 import delta.command.Command;
+import delta.command.commands.FontC;
 import delta.command.commands.Friend;
 import delta.command.commands.MacroC;
 import delta.event.PacketEvent;
@@ -14,6 +15,7 @@ public class CommandManager {
     public CommandManager() {
         commands.add(new Friend());
         commands.add(new MacroC());
+        commands.add(new FontC());
     }
     @EventListener
     public void onChat(PacketEvent.Send event) {
