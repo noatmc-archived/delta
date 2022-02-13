@@ -7,6 +7,8 @@ import delta.module.Category;
 import delta.module.Module;
 import delta.setting.Setting;
 import delta.util.*;
+import delta.util.autocrystal.CSorter;
+import delta.util.autocrystal.Crystal;
 import delta.util.autocrystal.Position;
 import delta.util.autocrystal.Sorter;
 import delta.util.fade.FadePos;
@@ -42,6 +44,14 @@ public class AutoCrystal extends Module {
             "Instant",
             "Normal",
             "Player"
+    });
+    Setting breakWhen = setting("Break When", new String[]{
+            "Spawned",
+            "Tick"
+    });
+    Setting logic = setting("Logic", new String[]{
+            "PLBR",
+            "BRPL"
     });
     Setting replace = setting("Replace", false);
     Setting silent = setting("Silent", true);
@@ -85,27 +95,26 @@ public class AutoCrystal extends Module {
         return Color.getHSBColor((float) (rainbowState % 360.0 / 360.0), 255 / 255.0f, 198 / 255.0f);
     }
 
-//    @EventListener
-//    public void onPacketReceive(PacketEvent.Receive event) {
-//        if (event.getPacket() instanceof SPacketSoundEffect) {
-//            if (((SPacketSoundEffect) event.getPacket()).getCategory() == SoundCategory.BLOCKS && ((SPacketSoundEffect) event.getPacket()).getSound() == SoundEvents.ENTITY_GENERIC_EXPLODE) {
-//                for (Entity e : mc.world.loadedEntityList) {
-//                    if (e instanceof EntityEnderCrystal) {
-//                        if (e.getDistance(((SPacketSoundEffect) event.getPacket()).getX(), ((SPacketSoundEffect) event.getPacket()).getY(), ((SPacketSoundEffect) event.getPacket()).getZ()) <= 6.0f) {
-//                            e.setDead();
-//                        }
-//                    }
-//                }
-//            } else if (((SPacketSoundEffect) event.getPacket()).getCategory() == SoundCategory.BLOCKS && ((SPacketSoundEffect) event.getPacket()).getSound() == SoundEvents.BLOCK_STONE_BREAK) {
-//                if (target != null) {
-//                    if (mc.player.getDistance(((SPacketSoundEffect) event.getPacket()).getX(), ((SPacketSoundEffect) event.getPacket()).getY(), ((SPacketSoundEffect) event.getPacket()).getZ()) <= 6.0f && PlayerUtils.getCityableBlocks(target).contains(new BlockPos(((SPacketSoundEffect) event.getPacket()).getX(), ((SPacketSoundEffect) event.getPacket()).getY(), ((SPacketSoundEffect) event.getPacket()).getZ()))) {
-//                        MessageUtils.sendMessage("[noat logger] - citying");
-//                        CrystalUtils.placeCrystalOnBlock(PacketType.valueOf(packetType.getMode()), new BlockPos(((SPacketSoundEffect) event.getPacket()).getX(), ((SPacketSoundEffect) event.getPacket()).getY(), ((SPacketSoundEffect) event.getPacket()).getZ()), silent.getBVal(), swing.getBVal());
-//                    }
-//                }
-//            }
-//        }
-//    }
+    @EventListener
+    public void onPacketReceive(PacketEvent.Receive event) {
+        try {
+            if (event.getPacket() instanceof SPacketSoundEffect) {
+                final SPacketSoundEffect packet = (SPacketSoundEffect) event.getPacket();
+
+                if (packet.getCategory() == SoundCategory.BLOCKS && packet.getSound() == SoundEvents.ENTITY_GENERIC_EXPLODE) {
+                    for (Entity e : mc.world.loadedEntityList) {
+                        if (e instanceof EntityEnderCrystal) {
+                            if (e.getDistance(packet.getX(), packet.getY(), packet.getZ()) <= 6.0f) {
+                                e.setDead();
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception exception) {
+            MessageUtils.error();
+        }
+    }
 
     @Override
     public void onThread() {
@@ -139,7 +148,7 @@ public class AutoCrystal extends Module {
     public void onEntitySpawn(Entity crystal) {
         if (this.position != null) {
             if (crystal instanceof EntityEnderCrystal && mc.player.getDistance(crystal) <= breakRange.getDVal() && !attackedCrystal.contains(crystal)) {
-                if (breakCrystal.getBVal()) {
+                if (breakCrystal.getBVal() && breakWhen.getMode() == "Spawned") {
                     if (rotate.getBVal()) {
                         DeltaCore.rotationManager.setRotate(true);
                         DeltaCore.rotationManager.setYaw(RotationUtil.getRotations(crystal.getPositionVector())[0]);
@@ -148,8 +157,42 @@ public class AutoCrystal extends Module {
                     mc.playerController.attackEntity(mc.player, crystal);
                     if (sync.getBVal()) crystal.setDead();
                     attackedCrystal.add((EntityEnderCrystal) crystal);
-                    DeltaCore.rotationManager.setRotate(false);
+                    if (rotate.getBVal()) {
+                        DeltaCore.rotationManager.restoreRotations();
+                        DeltaCore.rotationManager.setRotate(false);
+                    }
                 }
+            }
+        }
+    }
+
+    public void breakCrystal() {
+        ArrayList<Crystal> crystals = new ArrayList<>();
+        for (EntityPlayer player : mc.world.playerEntities) {
+            if (player == mc.player) continue;
+            if (Friends.isFriend(player)) continue;
+            if (player.getDistance(mc.player) >= 11) continue; // stops lag
+            target = player;
+            for (Entity entity : mc.world.loadedEntityList) {
+                if (entity instanceof EntityEnderCrystal && entity.getDistance(mc.player) <= breakRange.getDVal() && CrystalUtils.calculateDamagePhobos(entity, player) >= minDamage.getDVal() && CrystalUtils.calculateDamagePhobos(entity, mc.player) <= getSuicideHealth()) {
+                    crystals.add(new Crystal(CrystalUtils.calculateDamagePhobos(entity, player), (EntityEnderCrystal) entity));
+                }
+            }
+        }
+        crystals.sort(new CSorter());
+        if (!crystals.isEmpty()) {
+            EntityEnderCrystal crystal = crystals.get(0).getCrystal();
+            if (rotate.getBVal()) {
+                DeltaCore.rotationManager.setRotate(true);
+                DeltaCore.rotationManager.setYaw(RotationUtil.getRotations(crystal.getPositionVector())[0]);
+                DeltaCore.rotationManager.setPitch(RotationUtil.getRotations(crystal.getPositionVector())[1]);
+            }
+            mc.playerController.attackEntity(mc.player, crystal);
+            if (sync.getBVal()) crystal.setDead();
+            attackedCrystal.add((EntityEnderCrystal) crystal);
+            if (rotate.getBVal()) {
+                DeltaCore.rotationManager.restoreRotations();
+                DeltaCore.rotationManager.setRotate(false);
             }
         }
     }
@@ -162,10 +205,16 @@ public class AutoCrystal extends Module {
                 if (!rotate.getBVal() && placeCrystal.getBVal()) {
                     placeCrystal();
                 }
+                if (!rotate.getBVal() && breakCrystal.getBVal() && breakWhen.getMode() == "Tick") {
+                    breakCrystal();
+                }
             } else {
                 if (!rotate.getBVal() && placeCrystal.getBVal() && placeTimer.hasReached((long) (500 / placeSpeed.getDVal()))) {
                     placeCrystal();
                     placeTimer.reset();
+                }
+                if (!rotate.getBVal() && breakCrystal.getBVal() && breakWhen.getMode() == "Tick") {
+                    breakCrystal();
                 }
             }
         }
@@ -183,10 +232,16 @@ public class AutoCrystal extends Module {
             if (rotate.getBVal() && placeCrystal.getBVal()) {
                 placeCrystal();
             }
+            if (rotate.getBVal() && breakCrystal.getBVal() && breakWhen.getMode() == "Tick") {
+                breakCrystal();
+            }
         } else {
             if (rotate.getBVal() && placeCrystal.getBVal() && placeTimer.hasReached((long) (500 / placeSpeed.getDVal()))) {
                 placeCrystal();
                 placeTimer.reset();
+            }
+            if (rotate.getBVal() && breakCrystal.getBVal() && breakWhen.getMode() == "Tick") {
+                breakCrystal();
             }
         }
     }
@@ -268,6 +323,10 @@ public class AutoCrystal extends Module {
             CrystalUtils.placeCrystalOnBlock(PacketType.valueOf(packetType.getMode()), position.pos, silent.getBVal(), swing.getBVal());
             if (silent.getBVal()) InventoryUtils.switchToSlot(slot, true);
             if (fade.getBVal()) DeltaCore.fadeManager.addFadePos(new FadePos(position.pos, new Color((int) r.getDVal(), (int) g.getDVal(), (int) b.getDVal())));
+            if (rotate.getBVal()) {
+                DeltaCore.rotationManager.restoreRotations();
+                DeltaCore.rotationManager.setRotate(false);
+            }
         } catch (Exception e) {
             // cope
         }

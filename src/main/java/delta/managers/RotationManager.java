@@ -17,6 +17,10 @@ public class RotationManager implements Wrapper {
     public void setPitch(float newPItch) {
         pitch = newPItch;
     }
+    public void restoreRotations() {
+        yaw = mc.player.rotationYaw;
+        pitch =mc.player.rotationPitch;
+    }
 
     @EventListener
     public void onPacketSent(PacketEvent.Send event) {

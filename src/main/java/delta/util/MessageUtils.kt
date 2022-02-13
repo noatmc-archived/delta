@@ -20,5 +20,9 @@ class MessageUtils {
         fun sendWatermarkString(msg: String) {
             sendMessage("" + ChatFormatting.BLACK + "[" + ChatFormatting.DARK_GRAY + "Delta" + ChatFormatting.BLACK + "] " + ChatFormatting.RESET + msg)
         }
+        @JvmStatic
+        fun error() {
+            sendMessage("" + ChatFormatting.RED + ChatFormatting.BOLD + "[Delta] - Error caught!")
+        }
     }
 }

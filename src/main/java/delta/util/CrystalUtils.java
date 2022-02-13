@@ -239,6 +239,10 @@ public class CrystalUtils implements Wrapper {
         return (float)finald;
     }
 
+    public static float calculateDamagePhobos(Entity entity, EntityPlayer player) {
+        return calculateDamagePhobos(entity.posX, entity.posY, entity.posZ, player);
+    }
+
 
     public static List<Block> getBlocks() {
         return Arrays.asList(
