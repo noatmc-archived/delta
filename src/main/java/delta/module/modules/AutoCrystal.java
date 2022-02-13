@@ -68,6 +68,8 @@ public class AutoCrystal extends Module {
     Setting r = setting("Red", 255, 0, 255, true);
     Setting g = setting("Green", 255, 0, 255, true);
     Setting b = setting("Blue", 255, 0, 255, true);
+    Setting a = setting("Alpha", 255, 0, 255, true);
+
     Setting noDelay = setting("No Delay", true);
 
     ArrayList<EntityEnderCrystal> attackedCrystal = new ArrayList<>();
@@ -249,7 +251,8 @@ public class AutoCrystal extends Module {
     @SubscribeEvent
     public void onRenderWorldLastEvent(RenderWorldLastEvent event) {
         if (this.position != null && !fade.getBVal()) {
-            RenderUtils.drawBoxESP(position.pos, new Color(rainbow(50).getRed(), rainbow(50).getGreen(), rainbow(50).getBlue(), (int) 190), 1.0f, true, true, (int) 190, 0.0);
+            RenderUtils.drawBoxESP(position.pos, new Color(((int) r.getDVal()), (int) g.getDVal(), (int) b.getDVal(), (int) a.getDVal()), 1.5f, true, true, (int) a.getDVal(), 0.0);
+            RenderUtils.drawText(position.pos, String.format("%.1f", position.damage));
         }
     }
 
