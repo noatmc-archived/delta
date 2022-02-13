@@ -36,14 +36,14 @@ public class TotemPopCounter extends Module {
 
     @EventListener
     public void onTotemPopped(TotemPopEvent event) {
-        if (event.getEntity() == mc.player && countSelf.getBVal()) MessageUtils.sendMessage( "bro u just popped " + ChatFormatting.RED + event.getCount() + ChatFormatting.RESET +   " totems...");
-        else if (event.getEntity() != mc.player) MessageUtils.sendMessage( ChatFormatting.BOLD +  "THIS BOY " + event.getEntity().getName() + " JUST POPPED " + ChatFormatting.GREEN + event.getCount() + ChatFormatting.RESET +  " TOTEMS LMAO");
+        if (event.getEntity() == mc.player && countSelf.getBVal()) MessageUtils.sendWatermarkString( "bro u just popped " + ChatFormatting.RED + event.getCount() + ChatFormatting.RESET +   " totems...");
+        else if (event.getEntity() != mc.player) MessageUtils.sendWatermarkString( ChatFormatting.BOLD +  "THIS BOY " + event.getEntity().getName() + " JUST POPPED " + ChatFormatting.GREEN + event.getCount() + ChatFormatting.RESET +  " TOTEMS LMAO");
     }
 
     @EventListener
     public void onPlayerDeath(PlayerDeathEvent event) {
         if (DeltaCore.totemPopManager.getTotemMap().containsKey(event.getEntity())) {
-            if (event.getEntity() != mc.player) MessageUtils.sendRainbowMessage(ChatFormatting.BOLD + "THIS BOZO " + event.getEntity().getName() + " JUST DIED LOLOLOLOLOLOL");
+            if (event.getEntity() != mc.player) MessageUtils.sendWatermarkString(ChatFormatting.BOLD + "THIS BOZO " + event.getEntity().getName() + " JUST DIED LOLOLOLOLOLOL");
             DeltaCore.totemPopManager.getTotemMap().remove(event.getEntity());
         }
     }

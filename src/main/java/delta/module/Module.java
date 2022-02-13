@@ -110,7 +110,7 @@ public class Module {
 
     public void toggle() {
         toggled = !toggled;
-        MessageUtils.sendMessage("Delta - " + this.getName() + " " + (toggled ? ChatFormatting.BOLD + "" + ChatFormatting.GREEN + "ENABLED" : ChatFormatting.BOLD + "" + ChatFormatting.RED + "DISABLED"), true);
+        MessageUtils.sendWatermarkString(this.getName() + " toggled " + ChatFormatting.RESET + ChatFormatting.BOLD + (this.toggled ? "ON" : "OFF"));
         if (toggled) enable(); else disable();
     }
 

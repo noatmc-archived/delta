@@ -1,9 +1,12 @@
 package delta.util;
 
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,5 +44,21 @@ public class BlockUtils {
             if (new AxisAlignedBB(pos).intersects(entity.getEntityBoundingBox())) return true;
         }
         return false;
+    }
+
+    public static List<EnumFacing> getPossibleSides(BlockPos pos) {
+        ArrayList<EnumFacing> facings = new ArrayList<>();
+        for (EnumFacing side : EnumFacing.values()) {
+            BlockPos neighbour = pos.offset(side);
+            IBlockState blockState;
+            if (!mc.world.getBlockState(neighbour).getBlock().canCollideCheck(mc.world.getBlockState(neighbour), false) || (blockState = mc.world.getBlockState(neighbour)).getMaterial().isReplaceable())
+                continue;
+            facings.add(side);
+        }
+        return facings;
+    }
+
+    public static Vec3d[] getHelpingBlocks(Vec3d vec3d) {
+        return new Vec3d[]{new Vec3d(vec3d.x, vec3d.y - 1.0, vec3d.z), new Vec3d(vec3d.x != 0.0 ? vec3d.x * 2.0 : vec3d.x, vec3d.y, vec3d.x != 0.0 ? vec3d.z : vec3d.z * 2.0), new Vec3d(vec3d.x == 0.0 ? vec3d.x + 1.0 : vec3d.x, vec3d.y, vec3d.x == 0.0 ? vec3d.z : vec3d.z + 1.0), new Vec3d(vec3d.x == 0.0 ? vec3d.x - 1.0 : vec3d.x, vec3d.y, vec3d.x == 0.0 ? vec3d.z : vec3d.z - 1.0), new Vec3d(vec3d.x, vec3d.y + 1.0, vec3d.z)};
     }
 }

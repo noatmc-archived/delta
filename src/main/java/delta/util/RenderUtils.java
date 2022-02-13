@@ -3,6 +3,7 @@ package delta.util;
 import delta.util.Wrapper;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderGlobal;
@@ -191,6 +192,10 @@ public class RenderUtils implements Wrapper {
         GlStateManager.disableBlend();
     }
 
+    public static void drawRect(int x, int y, int w, int h, Color color) {
+        Gui.drawRect(x, y, w + x, h + y, color.hashCode());
+    }
+
     public static void drawBoxESP(BlockPos pos, Color color, float lineWidth, boolean outline, boolean box, int boxAlpha, Double height) {
         AxisAlignedBB bb = new AxisAlignedBB((double) pos.getX() - mc.getRenderManager().viewerPosX, (double) pos.getY() - mc.getRenderManager().viewerPosY, (double) pos.getZ() - mc.getRenderManager().viewerPosZ, (double) (pos.getX() + 1) - mc.getRenderManager().viewerPosX, (double) (pos.getY() + 1) - mc.getRenderManager().viewerPosY + height, (double) (pos.getZ() + 1) - mc.getRenderManager().viewerPosZ);
         camera.setPosition(Objects.requireNonNull(mc.getRenderViewEntity()).posX, mc.getRenderViewEntity().posY, mc.getRenderViewEntity().posZ);
@@ -374,6 +379,34 @@ public class RenderUtils implements Wrapper {
         IBlockState iblockstate = RenderUtils.mc.world.getBlockState(pos);
         Vec3d interp = PlayerUtils.interpolateEntity(RenderUtils.mc.player, mc.getRenderPartialTicks());
         drawGradientBlockOutline(iblockstate.getSelectedBoundingBox(RenderUtils.mc.world, pos).grow(0.002f).offset(-interp.x, -interp.y, -interp.z).expand(0.0, height, 0.0), startColor, endColor, linewidth);
+    }
+
+    public static void drawGradientRectP(int left, int top, int right, int bottom, int startColor, int endColor) {
+        final float f = (startColor >> 24 & 0xFF) / 255.0f;
+        final float f2 = (startColor >> 16 & 0xFF) / 255.0f;
+        final float f3 = (startColor >> 8 & 0xFF) / 255.0f;
+        final float f4 = (startColor & 0xFF) / 255.0f;
+        final float f5 = (endColor >> 24 & 0xFF) / 255.0f;
+        final float f6 = (endColor >> 16 & 0xFF) / 255.0f;
+        final float f7 = (endColor >> 8 & 0xFF) / 255.0f;
+        final float f8 = (endColor & 0xFF) / 255.0f;
+        GL11.glEnable(3042);
+        GL11.glDisable(3553);
+        GL11.glBlendFunc(770, 771);
+        GL11.glEnable(2848);
+        GL11.glShadeModel(7425);
+        GL11.glPushMatrix();
+        GL11.glBegin(7);
+        GL11.glColor4f(f2, f3, f4, f);
+        GL11.glVertex2d(left, top);
+        GL11.glVertex2d(left, bottom);
+        GL11.glColor4f(f6, f7, f8, f5);
+        GL11.glVertex2d(right, bottom);
+        GL11.glVertex2d(right, top);
+        GL11.glEnd();
+        GL11.glPopMatrix();
+        GL11.glEnable(3553);
+        GL11.glDisable(3042);
     }
 
     public static void drawBlockOutline(BlockPos pos, Color color, float linewidth, boolean air, double height, boolean gradient, boolean invert) {

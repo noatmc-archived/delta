@@ -63,6 +63,7 @@ public class AutoCrystal extends Module {
     ArrayList<EntityEnderCrystal> attackedCrystal = new ArrayList<>();
     Position position = null;
     EntityPlayer target = null;
+    double damage;
     int speed = 0;
     Timer timer = new Timer();
     Timer placeTimer = new Timer();
@@ -84,33 +85,34 @@ public class AutoCrystal extends Module {
         return Color.getHSBColor((float) (rainbowState % 360.0 / 360.0), 255 / 255.0f, 198 / 255.0f);
     }
 
-    @EventListener
-    public void onPacketReceive(PacketEvent.Receive event) {
-        if (event.getPacket() instanceof SPacketSoundEffect) {
-            if (((SPacketSoundEffect) event.getPacket()).getCategory() == SoundCategory.BLOCKS && ((SPacketSoundEffect) event.getPacket()).getSound() == SoundEvents.ENTITY_GENERIC_EXPLODE) {
-                for (Entity e : mc.world.loadedEntityList) {
-                    if (e instanceof EntityEnderCrystal) {
-                        if (e.getDistance(((SPacketSoundEffect) event.getPacket()).getX(), ((SPacketSoundEffect) event.getPacket()).getY(), ((SPacketSoundEffect) event.getPacket()).getZ()) <= 6.0f) {
-                            e.setDead();
-                        }
-                    }
-                }
-            } else if (((SPacketSoundEffect) event.getPacket()).getCategory() == SoundCategory.BLOCKS && ((SPacketSoundEffect) event.getPacket()).getSound() == SoundEvents.BLOCK_STONE_BREAK) {
-                if (target != null) {
-                    if (mc.player.getDistance(((SPacketSoundEffect) event.getPacket()).getX(), ((SPacketSoundEffect) event.getPacket()).getY(), ((SPacketSoundEffect) event.getPacket()).getZ()) <= 6.0f && PlayerUtils.getCityableBlocks(target).contains(new BlockPos(((SPacketSoundEffect) event.getPacket()).getX(), ((SPacketSoundEffect) event.getPacket()).getY(), ((SPacketSoundEffect) event.getPacket()).getZ()))) {
-                        MessageUtils.sendMessage("[noat logger] - citying");
-                        CrystalUtils.placeCrystalOnBlock(PacketType.valueOf(packetType.getMode()), new BlockPos(((SPacketSoundEffect) event.getPacket()).getX(), ((SPacketSoundEffect) event.getPacket()).getY(), ((SPacketSoundEffect) event.getPacket()).getZ()), silent.getBVal(), swing.getBVal());
-                    }
-                }
-            }
-        }
-    }
+//    @EventListener
+//    public void onPacketReceive(PacketEvent.Receive event) {
+//        if (event.getPacket() instanceof SPacketSoundEffect) {
+//            if (((SPacketSoundEffect) event.getPacket()).getCategory() == SoundCategory.BLOCKS && ((SPacketSoundEffect) event.getPacket()).getSound() == SoundEvents.ENTITY_GENERIC_EXPLODE) {
+//                for (Entity e : mc.world.loadedEntityList) {
+//                    if (e instanceof EntityEnderCrystal) {
+//                        if (e.getDistance(((SPacketSoundEffect) event.getPacket()).getX(), ((SPacketSoundEffect) event.getPacket()).getY(), ((SPacketSoundEffect) event.getPacket()).getZ()) <= 6.0f) {
+//                            e.setDead();
+//                        }
+//                    }
+//                }
+//            } else if (((SPacketSoundEffect) event.getPacket()).getCategory() == SoundCategory.BLOCKS && ((SPacketSoundEffect) event.getPacket()).getSound() == SoundEvents.BLOCK_STONE_BREAK) {
+//                if (target != null) {
+//                    if (mc.player.getDistance(((SPacketSoundEffect) event.getPacket()).getX(), ((SPacketSoundEffect) event.getPacket()).getY(), ((SPacketSoundEffect) event.getPacket()).getZ()) <= 6.0f && PlayerUtils.getCityableBlocks(target).contains(new BlockPos(((SPacketSoundEffect) event.getPacket()).getX(), ((SPacketSoundEffect) event.getPacket()).getY(), ((SPacketSoundEffect) event.getPacket()).getZ()))) {
+//                        MessageUtils.sendMessage("[noat logger] - citying");
+//                        CrystalUtils.placeCrystalOnBlock(PacketType.valueOf(packetType.getMode()), new BlockPos(((SPacketSoundEffect) event.getPacket()).getX(), ((SPacketSoundEffect) event.getPacket()).getY(), ((SPacketSoundEffect) event.getPacket()).getZ()), silent.getBVal(), swing.getBVal());
+//                    }
+//                }
+//            }
+//        }
+//    }
 
     @Override
     public void onThread() {
 
 //        System.out.println(speed);
         if (timer.hasReached(500)) {
+            damage = 0;
             attackedCrystal.clear();
             timer.reset();
         }
@@ -123,6 +125,7 @@ public class AutoCrystal extends Module {
         timer.reset();
         placeTimer.reset();
         speed = 0;
+        damage = 0;
         target = null;
         MinecraftForge.EVENT_BUS.register(this);
     }
@@ -135,7 +138,7 @@ public class AutoCrystal extends Module {
     @Override
     public void onEntitySpawn(Entity crystal) {
         if (this.position != null) {
-            if (crystal instanceof EntityEnderCrystal && mc.player.getDistance(crystal) <= breakRange.getDVal()) {
+            if (crystal instanceof EntityEnderCrystal && mc.player.getDistance(crystal) <= breakRange.getDVal() && !attackedCrystal.contains(crystal)) {
                 if (breakCrystal.getBVal()) {
                     if (rotate.getBVal()) {
                         DeltaCore.rotationManager.setRotate(true);
@@ -170,7 +173,7 @@ public class AutoCrystal extends Module {
 
     @Override
     public String getHudString() {
-        return "" + attackedCrystal.size();
+        return String.format("%.2f", damage);
     }
 
     @Override
@@ -237,6 +240,7 @@ public class AutoCrystal extends Module {
         }
         if (position.isEmpty()) return null;
         position.sort(new Sorter());
+        damage = position.get(0).damage;
         return position.get(0);
     }
 

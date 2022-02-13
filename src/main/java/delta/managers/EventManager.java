@@ -2,8 +2,6 @@ package delta.managers;
 
 import com.mojang.realmsclient.gui.ChatFormatting;
 import delta.util.MessageUtils;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraftforge.client.event.ClientChatEvent;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;

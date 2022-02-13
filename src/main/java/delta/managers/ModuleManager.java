@@ -45,7 +45,7 @@ public class ModuleManager {
     }
 
     public ArrayList<Module> sorted() {
-        return (ArrayList<Module>) getEnabledModules().stream().sorted(Comparator.comparing(t-> DeltaCore.fontRenderer.getStringWidth(t.getFullString()))).collect(Collectors.toList());
+        return (ArrayList<Module>) getEnabledModules().stream().sorted(Comparator.comparing(t-> (DeltaCore.fontRenderer.getStringWidth(t.getFullString()) * -1))).collect(Collectors.toList());
     }
 
     @EventListener(priority = ListenerPriority.HIGHEST)

@@ -38,8 +38,6 @@ public class InventoryUtils implements Wrapper {
     public static void switchToItem(Item item, boolean silent) {
         if (getHotbarItemSlot(item) != -1) {
             switchToSlot(getHotbarItemSlot(item), silent);
-        } else {
-            MessageUtils.sendMessage(ChatFormatting.RED + "ERROR - Item not found on hotbar.", true);
         }
     }
 }
