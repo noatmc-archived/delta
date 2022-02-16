@@ -54,10 +54,12 @@ public class AutoCrystal extends Module {
             "BRPL"
     });
     Setting replace = setting("Replace", false);
+    Setting autoSwitch = setting("Auto Switch", true);
     Setting silent = setting("Silent", true);
     Setting sync = setting("Sync Attack", true);
     Setting swing = setting("Swing", true);
     Setting rotate = setting("Rotation", false);
+    Setting multiplace = setting("Multiplace", false);
     Setting wallRange = setting("Wall Range", 4.0, 0.1 ,6.0, false);
     Setting antiSuicide = setting("Anti Suicide", false);
     Setting maxSelfDmg = setting("Self Damage", 36.0f, 0.0f, 1000, false);
@@ -68,12 +70,17 @@ public class AutoCrystal extends Module {
     Setting r = setting("Red", 255, 0, 255, true);
     Setting g = setting("Green", 255, 0, 255, true);
     Setting b = setting("Blue", 255, 0, 255, true);
+    Setting Dr = setting("D-Red", 255, 0, 255, true);
+    Setting Dg = setting("D-Green", 255, 0, 255, true);
+    Setting Db = setting("D-Blue", 255, 0, 255, true);
+    Setting Dshadow = setting("D-Shadow", true);
     Setting a = setting("Alpha", 255, 0, 255, true);
 
     Setting noDelay = setting("No Delay", true);
 
     ArrayList<EntityEnderCrystal> attackedCrystal = new ArrayList<>();
     Position position = null;
+    Position render = null;
     EntityPlayer target = null;
     double damage;
     int speed = 0;
@@ -120,7 +127,6 @@ public class AutoCrystal extends Module {
 
     @Override
     public void onThread() {
-
 //        System.out.println(speed);
         if (timer.hasReached(500)) {
             damage = 0;
@@ -250,9 +256,9 @@ public class AutoCrystal extends Module {
 
     @SubscribeEvent
     public void onRenderWorldLastEvent(RenderWorldLastEvent event) {
-        if (this.position != null && !fade.getBVal()) {
-            RenderUtils.drawBoxESP(position.pos, new Color(((int) r.getDVal()), (int) g.getDVal(), (int) b.getDVal(), (int) a.getDVal()), 1.5f, true, true, (int) a.getDVal(), 0.0);
-            RenderUtils.drawText(position.pos, String.format("%.1f", position.damage));
+        if (this.render != null && !fade.getBVal()) {
+            RenderUtils.drawBoxESP(render.pos, new Color(((int) r.getDVal()), (int) g.getDVal(), (int) b.getDVal(), (int) a.getDVal()), 1.5f, true, true, (int) a.getDVal(), 0.0);
+            RenderUtils.drawText(render.pos, String.format("%.1f", render.damage), new Color(((int) r.getDVal()), (int) g.getDVal(), (int) b.getDVal()), Dshadow.getBVal());
         }
     }
 
@@ -282,7 +288,7 @@ public class AutoCrystal extends Module {
             if (Friends.isFriend(player)) continue;
             if (player.getDistance(mc.player) >= 11) continue; // stops lag
             target = player;
-            for (BlockPos pos : CrystalUtils.possiblePlacePosPhobos((float) placeRange.getDVal(), true, false)) {
+            for (BlockPos pos : CrystalUtils.possiblePlacePosPhobos((float) placeRange.getDVal(), !multiplace.getBVal(), false)) {
                 double targetDamage = CrystalUtils.calculateDamagePhobos(pos.getX() + 0.5, pos.getY() + 1, pos.getZ() + 0.5, player);
                 double selfDamage = CrystalUtils.calculateDamagePhobos(pos.getX() + 0.5, pos.getY() + 1, pos.getZ() + 0.5, mc.player);
 //                if (CrystalUtils.isCrystalStuck(pos) != null) {
@@ -313,7 +319,8 @@ public class AutoCrystal extends Module {
     }
 
     public void placeCrystal() {
-        this.position = getCrystalPlacePos();
+        position = getCrystalPlacePos();
+        render = position;
         if (position == null) return;
         try {
             if (rotate.getBVal()) {
@@ -322,14 +329,17 @@ public class AutoCrystal extends Module {
                 DeltaCore.rotationManager.setPitch(RotationUtil.getLegitRotations(new Vec3d(position.pos))[1]);
             }
             int slot = mc.player.inventory.currentItem;
-            if (silent.getBVal()) InventoryUtils.switchToItem(Items.END_CRYSTAL, true);
+            if (autoSwitch.getBVal()) InventoryUtils.switchToItem(Items.END_CRYSTAL, silent.getBVal());
             CrystalUtils.placeCrystalOnBlock(PacketType.valueOf(packetType.getMode()), position.pos, silent.getBVal(), swing.getBVal());
-            if (silent.getBVal()) InventoryUtils.switchToSlot(slot, true);
+            if (silent.getBVal()) {
+                InventoryUtils.switchToSlot(slot, true);
+            }
             if (fade.getBVal()) DeltaCore.fadeManager.addFadePos(new FadePos(position.pos, new Color((int) r.getDVal(), (int) g.getDVal(), (int) b.getDVal())));
             if (rotate.getBVal()) {
                 DeltaCore.rotationManager.restoreRotations();
                 DeltaCore.rotationManager.setRotate(false);
             }
+            render = position;
         } catch (Exception e) {
             // cope
         }

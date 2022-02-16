@@ -65,7 +65,7 @@ class BedAura : Module("Bed Aura", "Sleeping in nether on steroids", Category.CO
                     100
                 ), 1.0f, true, true, 100, -0.8
             )
-            RenderUtils.drawText(render, "" + damage)
+            RenderUtils.drawText(render, "" + damage, Color(170, 170, 170), true)
 
         }
     }

@@ -16,6 +16,7 @@ public class ThreadManager {
         new Thread(() -> {
             while (true) {
                 DeltaCore.moduleManager.onThread();
+                DeltaCore.packetManager.onThread();
             }
         }).start();
     }

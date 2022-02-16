@@ -20,7 +20,6 @@ public class ModuleManager {
         modules.add(new AutoCrystal());
         modules.add(new AutoDuper());
         modules.add(new ClickGUI());
-        modules.add(new ConfigSave());
         modules.add(new Effects());
         modules.add(new FakePlayer());
         modules.add(new HUD());

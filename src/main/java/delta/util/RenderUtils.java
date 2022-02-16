@@ -985,7 +985,7 @@ public class RenderUtils implements Wrapper {
         tessellator.draw();
     }
 
-    public static void drawText(BlockPos pos, String text) {
+    public static void drawText(BlockPos pos, String text, Color color, boolean shadow) {
         if (pos == null || text == null) {
             return;
         }
@@ -993,7 +993,7 @@ public class RenderUtils implements Wrapper {
         glBillboardDistanceScaled(pos.getX() + 0.5f, pos.getY() + 0.5f, pos.getZ() + 0.5f, mc.player, 1.0f);
         GlStateManager.disableDepth();
         GlStateManager.translate(-(mc.fontRenderer.getStringWidth(text) / 2.0), 0.0, 0.0);
-        mc.fontRenderer.drawStringWithShadow(text, 0.0f, 0.0f, -5592406);
+        mc.fontRenderer.drawString(text, 0.0f, 0.0f, color.hashCode(), shadow);
         GlStateManager.popMatrix();
     }
 

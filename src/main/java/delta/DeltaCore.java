@@ -31,6 +31,7 @@ public class DeltaCore {
     public static FadeManager fadeManager;
     public static MacroManager macroManager;
     public static CFontRenderer fontRenderer;
+    public static PacketManager packetManager;
 
     @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
@@ -46,6 +47,7 @@ public class DeltaCore {
         eventManager = new EventManager();
         fadeManager = new FadeManager();
         clickGui = new ClickGui();
+        packetManager = new PacketManager();
         fontRenderer = new CFontRenderer(new Font("Verdana", Font.PLAIN, 18), true, true);
         EVENT_BUS.subscribe(totemPopManager);
         EVENT_BUS.subscribe(moduleManager);
@@ -54,6 +56,7 @@ public class DeltaCore {
         EVENT_BUS.subscribe(eventManager);
         EVENT_BUS.subscribe(fadeManager);
         EVENT_BUS.subscribe(macroManager);
+        EVENT_BUS.subscribe(packetManager);
         try {
             configManager.loadModule();
         } catch (Exception exc) {
