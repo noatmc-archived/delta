@@ -3,6 +3,8 @@ package delta.util;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -14,6 +16,78 @@ import java.util.List;
 import static delta.util.Wrapper.mc;
 
 public class BlockUtils {
+
+
+    public static boolean isPlayerSafe(EntityPlayer entityPlayer) {
+        BlockPos pos = getFlooredPlayerPos(entityPlayer);
+        if (isNotIntersecting(entityPlayer)) {
+            return isBedrockOrObsidianOrEchest(pos.north()) && isBedrockOrObsidianOrEchest(pos.east()) && isBedrockOrObsidianOrEchest(pos.south()) && isBedrockOrObsidianOrEchest(pos.west()) && isBedrockOrObsidianOrEchest(pos.down());
+        } else {
+            return isIntersectingSafe(entityPlayer);
+        }
+    }
+
+    public static boolean isNotIntersecting(EntityPlayer entityPlayer) {
+        BlockPos pos = getFlooredPlayerPos(entityPlayer);
+        AxisAlignedBB bb = entityPlayer.getEntityBoundingBox();
+        return (!isAir(pos.north()) || !bb.intersects(new AxisAlignedBB(pos.north()))) && (!isAir(pos.east()) || !bb.intersects(new AxisAlignedBB(pos.east()))) && (!isAir(pos.south()) || !bb.intersects(new AxisAlignedBB(pos.south()))) && (!isAir(pos.west()) || !bb.intersects(new AxisAlignedBB(pos.west())));
+    }
+
+    public static boolean isIntersectingSafe(EntityPlayer entityPlayer) {
+        BlockPos pos = getFlooredPlayerPos(entityPlayer);
+        AxisAlignedBB bb = entityPlayer.getEntityBoundingBox();
+        if (isAir(pos.north()) && bb.intersects(new AxisAlignedBB(pos.north()))) {
+            BlockPos pos1 = pos.north();
+            if (!isBedrockOrObsidianOrEchest(pos1.north()) || !isBedrockOrObsidianOrEchest(pos1.east()) || !isBedrockOrObsidianOrEchest(pos1.west()) || !isBedrockOrObsidianOrEchest(pos1.down()))
+                return false;
+        }
+        if (isAir(pos.east()) && bb.intersects(new AxisAlignedBB(pos.east()))) {
+            BlockPos pos1 = pos.east();
+            if (!isBedrockOrObsidianOrEchest(pos1.north()) || !isBedrockOrObsidianOrEchest(pos1.east()) || !isBedrockOrObsidianOrEchest(pos1.south()) || !isBedrockOrObsidianOrEchest(pos1.down()))
+                return false;
+        }
+        if (isAir(pos.south()) && bb.intersects(new AxisAlignedBB(pos.south()))) {
+            BlockPos pos1 = pos.south();
+            if (!isBedrockOrObsidianOrEchest(pos1.east()) || !isBedrockOrObsidianOrEchest(pos1.south()) || !isBedrockOrObsidianOrEchest(pos1.west()) || !isBedrockOrObsidianOrEchest(pos1.down()))
+                return false;
+        }
+        if (isAir(pos.west()) && bb.intersects(new AxisAlignedBB(pos.west()))) {
+            BlockPos pos1 = pos.west();
+            return isBedrockOrObsidianOrEchest(pos1.north()) && isBedrockOrObsidianOrEchest(pos1.south()) && isBedrockOrObsidianOrEchest(pos1.west()) && isBedrockOrObsidianOrEchest(pos1.down());
+        }
+        return true;
+    }
+
+    public static boolean isBedrockOrObsidianOrEchest(BlockPos pos) {
+        return mc.world.getBlockState(pos).getBlock().equals(Blocks.BEDROCK) || mc.world.getBlockState(pos).getBlock().equals(Blocks.OBSIDIAN) || mc.world.getBlockState(pos).getBlock().equals(Blocks.ENDER_CHEST);
+    }
+
+    public static boolean isAir(BlockPos pos) {
+        return mc.world.getBlockState(pos).getBlock().equals(Blocks.AIR);
+    }
+
+    public static BlockPos getFlooredPlayerPos(EntityPlayer player) {
+        return new BlockPos(Math.floor(player.posX), Math.floor(player.posY), Math.floor(player.posZ));
+    }
+
+    public static List<BlockPos> getBlocksInRadius(double range) {
+        List<BlockPos> posses = new ArrayList<>();
+        float xRange = Math.round(range);
+        float yRange = Math.round(range);
+        float zRange = Math.round(range);
+        for (float x = -xRange; x <= xRange; x++) {
+            for (float y = -yRange; y <= yRange; y++) {
+                for (float z = -zRange; z <= zRange; z++) {
+                    BlockPos position = mc.player.getPosition().add(x, y, z);
+                    if (mc.player.getDistance(position.getX() + 0.5, position.getY() + 1, position.getZ() + 0.5) <= range) {
+                        posses.add(position);
+                    }
+                }
+            }
+        }
+        return posses;
+    }
+
     public static List<BlockPos> getSphere(BlockPos loc, float r, int h, boolean hollow, boolean sphere, int plus_y) {
         List<BlockPos> circleblocks = new ArrayList<>();
         int cx = loc.getX();

@@ -7,7 +7,6 @@ import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 
-// skidded from phobos 1.9
 public class CFont {
     protected CharData[] charData = new CharData[256];
     protected Font font;
@@ -103,10 +102,6 @@ public class CFont {
         GL11.glVertex2d(x + width, y);
     }
 
-    public int getStringHeight(String text) {
-        return this.getHeight();
-    }
-
     public int getHeight() {
         return (this.fontHeight - 8) / 2;
     }
@@ -114,14 +109,10 @@ public class CFont {
     public int getStringWidth(String text) {
         int width = 0;
         for (char c : text.toCharArray()) {
-            if (c >= this.charData.length || c < '\u0000') continue;
+            if (c >= this.charData.length) continue;
             width += this.charData[c].width - 8 + this.charOffset;
         }
         return width / 2;
-    }
-
-    public boolean isAntiAlias() {
-        return this.antiAlias;
     }
 
     public void setAntiAlias(boolean antiAlias) {
@@ -131,19 +122,11 @@ public class CFont {
         }
     }
 
-    public boolean isFractionalMetrics() {
-        return this.fractionalMetrics;
-    }
-
     public void setFractionalMetrics(boolean fractionalMetrics) {
         if (this.fractionalMetrics != fractionalMetrics) {
             this.fractionalMetrics = fractionalMetrics;
             this.tex = this.setupTexture(this.font, this.antiAlias, fractionalMetrics, this.charData);
         }
-    }
-
-    public Font getFont() {
-        return this.font;
     }
 
     public void setFont(Font font) {

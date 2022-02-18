@@ -23,7 +23,7 @@ public class FakePlayer extends Module {
 
     @Override
     public void onEnable() {
-        fakePlayer = new EntityOtherPlayerMP(mc.world, new GameProfile(UUID.fromString("a07208c2-01e5-4eac-a3cf-a5f5ef2a4700"), "travis"));
+        fakePlayer = new EntityOtherPlayerMP(mc.world, new GameProfile(UUID.fromString("283dbc01-a1b4-4158-a174-4d5e14c6ace4"), "Catuquei"));
         fakePlayer.copyLocationAndAnglesFrom(mc.player);
         fakePlayer.rotationYawHead = mc.player.rotationYawHead;
         fakePlayer.inventory.offHandInventory.set(0, new ItemStack(Items.TOTEM_OF_UNDYING));
