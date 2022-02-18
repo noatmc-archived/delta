@@ -152,6 +152,8 @@ public class PrestigeCrystal extends Module {
     public EntityEnderCrystal getTargetCrystal(EntityPlayer entityPlayer) {
         TreeMap<Double, EntityEnderCrystal> entities = new TreeMap<>();
         for (Entity entity1 : mc.world.loadedEntityList) {
+            if (!(entity1 instanceof EntityEnderCrystal))
+                continue;
             EntityEnderCrystal entity = (EntityEnderCrystal) entity1;
             BlockPos pos = entity.getPosition();
             if (!(mc.player.getDistance(entity) <= range.getDVal()) || (rayTraceCheckPos(pos) && mc.player.getDistanceSq(pos) / 2 > raytraceRange.getDVal())) {
