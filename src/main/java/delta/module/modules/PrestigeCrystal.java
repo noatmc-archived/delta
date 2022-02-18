@@ -313,7 +313,7 @@ public class PrestigeCrystal extends Module {
             if (distance < range) {
                 entityPlayerFloatTreeMap.put(distance, entityPlayer);
                 entityPlayerFloatTreeMap2.put((double) (entityPlayer.getHealth() + entityPlayer.getAbsorptionAmount()), entityPlayer);
-                entityPlayerFloatTreeMap3.put(entityPlayer.entityId, isPlayerSafe(entityPlayer));
+                entityPlayerFloatTreeMap3.put(entityPlayer.entityId, BlockUtils.isPlayerSafe(entityPlayer));
                 ICamera camera = new Frustum();
                 camera.setPosition(Objects.requireNonNull(mc.getRenderViewEntity()).posX, mc.getRenderViewEntity().posY, mc.getRenderViewEntity().posZ);
                 entityPlayerFloatTreeMap4.put(entityPlayer.entityId, camera.isBoundingBoxInFrustum(entityPlayer.getEntityBoundingBox()));
@@ -377,85 +377,33 @@ public class PrestigeCrystal extends Module {
         }
     }
 
-    protected boolean isPlayerSafe(EntityPlayer entityPlayer) {
-        BlockPos pos = getFlooredPlayerPos(entityPlayer);
-        if (isNotIntersecting(entityPlayer)) {
-            return isBedrockOrObsidianOrEchest(pos.north()) && isBedrockOrObsidianOrEchest(pos.east()) && isBedrockOrObsidianOrEchest(pos.south()) && isBedrockOrObsidianOrEchest(pos.west()) && isBedrockOrObsidianOrEchest(pos.down());
-        } else {
-            return isIntersectingSafe(entityPlayer);
-        }
-    }
-
-    protected boolean isNotIntersecting(EntityPlayer entityPlayer) {
-        BlockPos pos = getFlooredPlayerPos(entityPlayer);
-        AxisAlignedBB bb = entityPlayer.getEntityBoundingBox();
-        return (!isAir(pos.north()) || !bb.intersects(new AxisAlignedBB(pos.north()))) && (!isAir(pos.east()) || !bb.intersects(new AxisAlignedBB(pos.east()))) && (!isAir(pos.south()) || !bb.intersects(new AxisAlignedBB(pos.south()))) && (!isAir(pos.west()) || !bb.intersects(new AxisAlignedBB(pos.west())));
-    }
-
-    protected boolean isIntersectingSafe(EntityPlayer entityPlayer) {
-        BlockPos pos = getFlooredPlayerPos(entityPlayer);
-        AxisAlignedBB bb = entityPlayer.getEntityBoundingBox();
-        if (isAir(pos.north()) && bb.intersects(new AxisAlignedBB(pos.north()))) {
-            BlockPos pos1 = pos.north();
-            if (!isBedrockOrObsidianOrEchest(pos1.north()) || !isBedrockOrObsidianOrEchest(pos1.east()) || !isBedrockOrObsidianOrEchest(pos1.west()) || !isBedrockOrObsidianOrEchest(pos1.down()))
-                return false;
-        }
-        if (isAir(pos.east()) && bb.intersects(new AxisAlignedBB(pos.east()))) {
-            BlockPos pos1 = pos.east();
-            if (!isBedrockOrObsidianOrEchest(pos1.north()) || !isBedrockOrObsidianOrEchest(pos1.east()) || !isBedrockOrObsidianOrEchest(pos1.south()) || !isBedrockOrObsidianOrEchest(pos1.down()))
-                return false;
-        }
-        if (isAir(pos.south()) && bb.intersects(new AxisAlignedBB(pos.south()))) {
-            BlockPos pos1 = pos.south();
-            if (!isBedrockOrObsidianOrEchest(pos1.east()) || !isBedrockOrObsidianOrEchest(pos1.south()) || !isBedrockOrObsidianOrEchest(pos1.west()) || !isBedrockOrObsidianOrEchest(pos1.down()))
-                return false;
-        }
-        if (isAir(pos.west()) && bb.intersects(new AxisAlignedBB(pos.west()))) {
-            BlockPos pos1 = pos.west();
-            return isBedrockOrObsidianOrEchest(pos1.north()) && isBedrockOrObsidianOrEchest(pos1.south()) && isBedrockOrObsidianOrEchest(pos1.west()) && isBedrockOrObsidianOrEchest(pos1.down());
-        }
-        return true;
-    }
-
-    protected boolean isBedrockOrObsidianOrEchest(BlockPos pos) {
-        return mc.world.getBlockState(pos).getBlock().equals(Blocks.BEDROCK) || mc.world.getBlockState(pos).getBlock().equals(Blocks.OBSIDIAN) || mc.world.getBlockState(pos).getBlock().equals(Blocks.ENDER_CHEST);
-    }
-
-    protected boolean isAir(BlockPos pos) {
-        return mc.world.getBlockState(pos).getBlock().equals(Blocks.AIR);
-    }
-
-    protected BlockPos getFlooredPlayerPos(EntityPlayer player) {
-        return new BlockPos(Math.floor(player.posX), Math.floor(player.posY), Math.floor(player.posZ));
-    }
-
     protected boolean rayTraceCheckPos(BlockPos pos) {
         return mc.world.rayTraceBlocks(new Vec3d(mc.player.posX, mc.player.posY + (double) mc.player.getEyeHeight(), mc.player.posZ), new Vec3d(pos.getX(), pos.getY(), pos.getZ()), false, true, false) != null;
     }
 
     protected boolean canPlace(BlockPos pos) {
         ArrayList<Entity> intersecting = mc.world.getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(pos.up()).shrink(0.2)).stream().filter(entity -> entity instanceof EntityPlayer).collect(Collectors.toCollection(ArrayList::new));
-        return intersecting.isEmpty() && (mc.world.getBlockState(pos).getBlock().equals(Blocks.BEDROCK) || mc.world.getBlockState(pos).getBlock().equals(Blocks.OBSIDIAN)) && isAir(pos.up()) && isAir(pos.up().up());
+        return intersecting.isEmpty() && (mc.world.getBlockState(pos).getBlock().equals(Blocks.BEDROCK) || mc.world.getBlockState(pos).getBlock().equals(Blocks.OBSIDIAN)) && BlockUtils.isAir(pos.up()) && BlockUtils.isAir(pos.up().up());
     }
 
     protected EnumFacing getClosestEnumFacing(BlockPos pos) {
         TreeMap<Double, EnumFacing> facingTreeMap = new TreeMap<>();
-        if (isAir(pos.up())) {
+        if (BlockUtils.isAir(pos.up())) {
             facingTreeMap.put(mc.player.getDistanceSq(pos.up()), EnumFacing.UP);
         }
-        if (isAir(pos.down())) {
+        if (BlockUtils.isAir(pos.down())) {
             facingTreeMap.put(mc.player.getDistanceSq(pos.down()), EnumFacing.DOWN);
         }
-        if (isAir(pos.north())) {
+        if (BlockUtils.isAir(pos.north())) {
             facingTreeMap.put(mc.player.getDistanceSq(pos.north()), EnumFacing.NORTH);
         }
-        if (isAir(pos.east())) {
+        if (BlockUtils.isAir(pos.east())) {
             facingTreeMap.put(mc.player.getDistanceSq(pos.east()), EnumFacing.EAST);
         }
-        if (isAir(pos.south())) {
+        if (BlockUtils.isAir(pos.south())) {
             facingTreeMap.put(mc.player.getDistanceSq(pos.south()), EnumFacing.SOUTH);
         }
-        if (isAir(pos.west())) {
+        if (BlockUtils.isAir(pos.west())) {
             facingTreeMap.put(mc.player.getDistanceSq(pos.west()), EnumFacing.WEST);
         }
         if (!facingTreeMap.isEmpty())

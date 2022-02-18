@@ -1,10 +1,38 @@
 package delta.util;
 
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.client.CPacketHeldItemChange;
 import net.minecraft.util.EnumHand;
 
 public class InventoryUtils implements Wrapper {
+
+    public static int getStackCount(Item item) {
+        int count = 0;
+        for (int size = mc.player.inventory.mainInventory.size(), i = 0; i < size; ++i) {
+            final ItemStack itemStack = mc.player.inventory.mainInventory.get(i);
+            if (itemStack.getItem() == item) {
+                count += itemStack.getCount();
+            }
+        }
+        final ItemStack offhandStack = mc.player.getHeldItemOffhand();
+        if (offhandStack.getItem() == item) {
+            count += offhandStack.getCount();
+        }
+        return count;
+    }
+
+    public static int getItemSlot(Item item) {
+        int itemSlot = -1;
+        for (int i = 45; i > 0; --i) {
+            if (mc.player.inventory.getStackInSlot(i).getItem().equals(item)) {
+                itemSlot = i;
+                break;
+            }
+        }
+        return itemSlot;
+    }
+
     public static EnumHand getEnumHand(Item item) {
         if (mc.player.getHeldItemMainhand().item == item) {
             return EnumHand.MAIN_HAND;
