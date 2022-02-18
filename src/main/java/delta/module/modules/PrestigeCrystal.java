@@ -99,6 +99,7 @@ public class PrestigeCrystal extends Module {
     protected final Setting alpha = setting("Alpha", 255, 0, 255, true);
     protected final Setting lineWidth = setting("Line Width", 1.0, 0.1, 5.0, false);
 
+    protected final ArrayList<Long> crystalsPerSecond = new ArrayList<>();
     protected final Timer placeTimer = new Timer();
     protected final Timer breakTimer = new Timer();
     protected BlockPos placePos = null;
@@ -247,6 +248,7 @@ public class PrestigeCrystal extends Module {
             mc.player.inventory.currentItem = currentItem;
             mc.playerController.updateController();
         }
+        crystalsPerSecond.add(System.currentTimeMillis() + 1000L);
     }
 
     protected void setup() {
@@ -366,9 +368,12 @@ public class PrestigeCrystal extends Module {
     @SubscribeEvent
     public void onRenderWorldLastEvent(RenderWorldLastEvent event) {
         if (render.getBVal() && placePos != null){
+            Long currentTime = System.currentTimeMillis();
+            new ArrayList<>(crystalsPerSecond).stream().filter(currentTimeMillis -> currentTimeMillis < currentTime).forEach(crystalsPerSecond::remove);
             Color color = new Color((int) red.getDVal() / 255.0f, (int)green.getDVal() / 255.0f, (int) blue.getDVal() / 255.0f, (int) alpha.getDVal() / 255.0f);
             RenderUtils.drawBox(placePos, color, false);
             RenderUtils.drawBlockOutline(placePos, color, (float) lineWidth.getDVal(), false);
+            RenderUtils.drawText(placePos, crystalsPerSecond.size() + "", new Color(1, 1, 1, 1), true);
         }
     }
 
