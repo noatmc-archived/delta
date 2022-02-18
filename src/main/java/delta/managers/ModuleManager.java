@@ -29,6 +29,7 @@ public class ModuleManager {
         modules.add(new TotemPopCounter());
         modules.add(new Velocity());
         modules.add(new CityAlert());
+        modules.add(new PrestigeCrystal());
     }
 
     public ArrayList<Module> getModules() {

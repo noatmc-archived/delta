@@ -14,6 +14,25 @@ import java.util.List;
 import static delta.util.Wrapper.mc;
 
 public class BlockUtils {
+
+    public static List<BlockPos> getBlocksInRadius(double range) {
+        List<BlockPos> posses = new ArrayList<>();
+        float xRange = Math.round(range);
+        float yRange = Math.round(range);
+        float zRange = Math.round(range);
+        for (float x = -xRange; x <= xRange; x++) {
+            for (float y = -yRange; y <= yRange; y++) {
+                for (float z = -zRange; z <= zRange; z++) {
+                    BlockPos position = mc.player.getPosition().add(x, y, z);
+                    if (mc.player.getDistance(position.getX() + 0.5, position.getY() + 1, position.getZ() + 0.5) <= range) {
+                        posses.add(position);
+                    }
+                }
+            }
+        }
+        return posses;
+    }
+
     public static List<BlockPos> getSphere(BlockPos loc, float r, int h, boolean hollow, boolean sphere, int plus_y) {
         List<BlockPos> circleblocks = new ArrayList<>();
         int cx = loc.getX();
