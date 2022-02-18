@@ -38,11 +38,4 @@ public class RenderBuilder {
         GlStateManager.enableAlpha();
         GlStateManager.shadeModel(GL_FLAT);
     }
-
-    public enum RenderMode {
-        Fill,
-        Outline,
-        Both,
-        Glow
-    }
 }

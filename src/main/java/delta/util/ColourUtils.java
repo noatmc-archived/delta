@@ -150,64 +150,7 @@ public class ColourUtils {
             return colorList;
         }
 
-        public static int toRGBA(double r, double g, double b, double a) {
-            return toRGBA((float) r, (float) g, (float) b, (float) a);
-        }
-
-        public String getColorNameFromRgb(int r, int g, int b) {
-            ArrayList<ColorName> colorList = initColorList();
-            ColorName closestMatch = null;
-            int minMSE = Integer.MAX_VALUE;
-            int mse;
-            for (ColorName c : colorList) {
-                mse = c.computeMSE(r, g, b);
-                if (mse < minMSE) {
-                    minMSE = mse;
-                    closestMatch = c;
-                }
-            }
-
-            if (closestMatch != null) {
-                return closestMatch.getName();
-            } else {
-                return "No matched color name.";
-            }
-        }
-
-        public static int GenRainbow() {
-            int color;
-            float[] hue = new float[]{(float) (System.currentTimeMillis() % 11520L) / 11520.0f};
-            int rgb = Color.HSBtoRGB(hue[0], 1.0f, 1.0f);
-            int red = rgb >> 16 & 255;
-            int green = rgb >> 8 & 255;
-            int blue = rgb & 255;
-            color = toRGBA(red, green, blue, 255);
-            return color;
-        }
-
-        public static Color getRainbowAlpha(final int speed,  final int offset,  final float s,  final float b,  final int alpha) {
-            final float hue = (float)((System.currentTimeMillis() + offset) % speed);
-            final Color c = new Color(Color.getHSBColor(hue / speed,  s,  b).getRGB());
-            return new Color(c.getRed(),  c.getGreen(),  c.getBlue(), alpha);
-        }
-
-        public String getColorNameFromHex(int hexColor) {
-            int r = (hexColor & 0xFF0000) >> 16;
-            int g = (hexColor & 0xFF00) >> 8;
-            int b = (hexColor & 0xFF);
-            return getColorNameFromRgb(r, g, b);
-        }
-
-        public int colorToHex(Color c) {
-            return Integer.decode("0x"
-                    + Integer.toHexString(c.getRGB()).substring(2));
-        }
-
-        public String getColorNameFromColor(Color color) {
-            return getColorNameFromRgb(color.getRed(), color.getGreen(),
-                    color.getBlue());
-        }
-        public class ColorName {
+        public static class ColorName {
 
             public int r, g, b;
             public String name;
@@ -219,69 +162,13 @@ public class ColourUtils {
                 this.name = name;
             }
 
-            public int computeMSE(int pixR, int pixG, int pixB) {
-                return ((pixR - r) * (pixR - r) + (pixG - g) * (pixG - g) + (pixB - b)
-                        * (pixB - b)) / 3;
-            }
-
-            public int getR() {
-                return r;
-            }
-
-            public int getG() {
-                return g;
-            }
-
-            public int getB() {
-                return b;
-            }
-
             public String getName() {
                 return name;
             }
         }
 
         public static int toRGBA(int r, int g, int b, int a) {
-            return (r  << 16) + (g << 8) + (b << 0) + (a << 24);
-        }
-
-        public static int toRGBA(float r, float g, float b, float a) {
-            return toRGBA((int) (r * 255.f), (int) (g * 255.f), (int) (b * 255.f), (int) (a * 255.f));
-        }
-        public static int toRGBA(float[] colors) {
-            if(colors.length != 4) throw new IllegalArgumentException("colors[] must have a length of 4!");
-            return toRGBA(colors[0], colors[1], colors[2], colors[3]);
-        }
-        public static int toRGBA(double[] colors) {
-            if(colors.length != 4) throw new IllegalArgumentException("colors[] must have a length of 4!");
-            return toRGBA((float)colors[0], (float)colors[1], (float)colors[2], (float)colors[3]);
-        }
-
-        public static int[] toRGBAArray(int colorBuffer) {
-            return new int[] {
-                    (colorBuffer >> 16 & 255),
-                    (colorBuffer >> 8 & 255),
-                    (colorBuffer & 255),
-                    (colorBuffer >> 24 & 255)
-            };
-        }
-        public static class Colors {
-            public final static int WHITE           = toRGBA(255,     255,    255,    255);
-            public final static int BLACK           = toRGBA(0,       0,      0,      255);
-            public final static int RED             = toRGBA(255,     0,      0,      255);
-            public final static int GREEN           = toRGBA(0,       255,    0,      255);
-            public final static int BLUE            = toRGBA(0,       0,      255,    255);
-            public final static int ORANGE          = toRGBA(255,     128,    0,      255);
-            public final static int PURPLE          = toRGBA(163,     73,     163,    255);
-            public final static int GRAY            = toRGBA(127,     127,    127,    255);
-            public final static int DARK_RED        = toRGBA(64,      0,      0,      255);
-            public final static int YELLOW          = toRGBA(255,     255,    0,      255);
-            public final static int RAINBOW = Integer.MIN_VALUE;
-        }
-
-        public static final int changeAlpha(int origColor, int userInputedAlpha) {
-            origColor = origColor & 0x00ffffff;
-            return (userInputedAlpha << 24) | origColor;
+            return (r  << 16) + (g << 8) + (b) + (a << 24);
         }
 
     }

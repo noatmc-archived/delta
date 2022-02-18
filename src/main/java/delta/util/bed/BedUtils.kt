@@ -53,7 +53,6 @@ class BedUtils  {
             if (switch && InventoryUtils.getHotbarItemSlot(Items.BED) != -1) {
                 InventoryUtils.switchToSlot(oldSlot, silent)
             }
-//            mc.player.swingArm(EnumHand.MAIN_HAND)
         }
     }
 }

@@ -13,13 +13,11 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.init.MobEffects;
-import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.client.CPacketPlayerTryUseItemOnBlock;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.*;
 import net.minecraft.util.math.*;
 import net.minecraft.world.Explosion;
-import net.minecraft.world.World;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,18 +26,6 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class CrystalUtils implements Wrapper {
-
-    public static Boolean getArmourFucker(EntityPlayer player, float percent) {
-        for (ItemStack stack : player.getArmorInventoryList()) {
-            if (stack == null || stack.getItem() == Items.AIR) return true;
-
-            float armourPercent = ((float) (stack.getMaxDamage() - stack.getItemDamage()) /
-                    (float) stack.getMaxDamage()) * 100f;
-
-            if (percent >= armourPercent && stack.stackSize < 2) return true;
-        }
-        return false;
-    }
 
     public static boolean rayTraceSolidCheck(Vec3d start, Vec3d end, boolean shouldIgnore) {
         if (!Double.isNaN(start.x) && !Double.isNaN(start.y) && !Double.isNaN(start.z)) {
@@ -147,10 +133,14 @@ public class CrystalUtils implements Wrapper {
 
     public static float getDamageFromDifficulty(float damage) {
         switch (mc.world.getDifficulty()) {
-            case PEACEFUL: return 0;
-            case EASY:     return Math.min(damage / 2 + 1, damage);
-            case HARD:     return damage * 3 / 2;
-            default:       return damage;
+            case PEACEFUL:
+                return 0;
+            case EASY:
+                return Math.min(damage / 2 + 1, damage);
+            case HARD:
+                return damage * 3 / 2;
+            default:
+                return damage;
         }
     }
 
@@ -162,6 +152,7 @@ public class CrystalUtils implements Wrapper {
         return getExplosionDamage(target, new Vec3d(crystal.posX, crystal.posY, crystal.posZ), 6.0f, shouldIgnore);
     }
 
+    @SuppressWarnings("ConstantConditions")
     public static float getExplosionDamage(Entity targetEntity, Vec3d explosionPosition, float explosionPower, boolean shouldIgnore) {
         Vec3d entityPosition = new Vec3d(targetEntity.posX, targetEntity.posY, targetEntity.posZ);
         if (targetEntity.isImmuneToExplosions()) return 0.0f;
@@ -211,32 +202,30 @@ public class CrystalUtils implements Wrapper {
         return damage;
     }
 
-    public static
-    List < BlockPos > possiblePlacePosPhobos ( float placeRange , boolean specialEntityCheck , boolean oneDot15 ) {
-        NonNullList<BlockPos> positions = NonNullList.create ( );
-        positions.addAll ( getSphere ( PlayerUtils.getPlayerPos ( mc.player ) , placeRange , (int) placeRange , false , true , 0 ).stream ( ).filter ( pos -> canPlaceCrystalPhobos ( pos , specialEntityCheck , oneDot15 ) ).collect ( Collectors.toList ( ) ) );
+    public static List<BlockPos> possiblePlacePosPhobos(float placeRange, boolean specialEntityCheck, boolean oneDot15) {
+        NonNullList<BlockPos> positions = NonNullList.create();
+        positions.addAll(getSphere(PlayerUtils.getPlayerPos(mc.player), placeRange, (int) placeRange, false, true, 0).stream().filter(pos -> canPlaceCrystalPhobos(pos, specialEntityCheck, oneDot15)).collect(Collectors.toList()));
         return positions;
     }
 
 
+    @SuppressWarnings("ConstantConditions")
     public static float calculateDamagePhobos(double posX, double posY, double posZ, Entity entity) {
         float doubleExplosionSize = 12.0f;
-        double distancedsize = entity.getDistance(posX, posY, posZ) / (double)doubleExplosionSize;
+        double distancedsize = entity.getDistance(posX, posY, posZ) / (double) doubleExplosionSize;
         Vec3d vec3d = new Vec3d(posX, posY, posZ);
         double blockDensity = 0.0;
         try {
             blockDensity = entity.world.getBlockDensity(vec3d, entity.getEntityBoundingBox());
-        }
-        catch (Exception exception) {
-            // empty catch block
+        } catch (Exception ignored) {
         }
         double v = (1.0 - distancedsize) * blockDensity;
-        float damage = (int)((v * v + v) / 2.0 * 7.0 * (double)doubleExplosionSize + 1.0);
+        float damage = (int) ((v * v + v) / 2.0 * 7.0 * (double) doubleExplosionSize + 1.0);
         double finald = 1.0;
         if (entity instanceof EntityLivingBase) {
-            finald = getBlastReduction((EntityLivingBase)entity,getDamageMultiplied(damage), new Explosion(mc.world, null, posX, posY, posZ, 6.0f, false, true));
+            finald = getBlastReduction((EntityLivingBase) entity, getDamageMultiplied(damage), new Explosion(mc.world, null, posX, posY, posZ, 6.0f, false, true));
         }
-        return (float)finald;
+        return (float) finald;
     }
 
     public static float calculateDamagePhobos(Entity entity, EntityPlayer player) {
@@ -277,20 +266,14 @@ public class CrystalUtils implements Wrapper {
         return damage * (diff == 0 ? 0.0f : (diff == 2 ? 1.0f : (diff == 1 ? 0.5f : 1.5f)));
     }
 
-    public static List<BlockPos> possiblePlacePositions(float placeRange, boolean specialEntityCheck, boolean oneDot15) {
-        NonNullList<BlockPos> positions = NonNullList.create();
-        positions.addAll(getSphere(new BlockPos(Math.floor(mc.player.posX), Math.floor(mc.player.posY), Math.floor(mc.player.posZ)), placeRange, (int) placeRange, false, true, 0).stream().filter(pos -> mc.world.getBlockState(pos).getBlock() != Blocks.AIR).filter(pos -> canPlaceCrystal(pos, specialEntityCheck, oneDot15)).collect(Collectors.toList()));
-        return positions;
-    }
-
     public static void placeCrystalOnBlock(PacketType packetType, BlockPos pos, boolean silent, boolean swing) {
-        RayTraceResult result = mc.world.rayTraceBlocks ( new Vec3d ( mc.player.posX , mc.player.posY + (double) mc.player.getEyeHeight ( ) , mc.player.posZ ) , new Vec3d ( (double) pos.getX ( ) + 0.5 , (double) pos.getY ( ) - 0.5 , (double) pos.getZ ( ) + 0.5 ) );
+        RayTraceResult result = mc.world.rayTraceBlocks(new Vec3d(mc.player.posX, mc.player.posY + (double) mc.player.getEyeHeight(), mc.player.posZ), new Vec3d((double) pos.getX() + 0.5, (double) pos.getY() - 0.5, (double) pos.getZ() + 0.5));
         EnumFacing facing = result == null || result.sideHit == null ? EnumFacing.UP : result.sideHit;
         if (silent && InventoryUtils.getHotbarItemSlot(Items.END_CRYSTAL) != -1) {
-            PacketUtils.sendPacket(packetType, new CPacketPlayerTryUseItemOnBlock( pos , facing , EnumHand.MAIN_HAND, 0.0f , 0.0f , 0.0f ));
+            PacketUtils.sendPacket(packetType, new CPacketPlayerTryUseItemOnBlock(pos, facing, EnumHand.MAIN_HAND, 0.0f, 0.0f, 0.0f));
             if (swing) mc.player.swingArm(EnumHand.MAIN_HAND);
         } else {
-            PacketUtils.sendPacket(packetType, new CPacketPlayerTryUseItemOnBlock( pos , facing , Objects.requireNonNull(InventoryUtils.getEnumHand(Items.END_CRYSTAL)), 0.0f , 0.0f , 0.0f ));
+            PacketUtils.sendPacket(packetType, new CPacketPlayerTryUseItemOnBlock(pos, facing, Objects.requireNonNull(InventoryUtils.getEnumHand(Items.END_CRYSTAL)), 0.0f, 0.0f, 0.0f));
             if (swing) mc.player.swingArm(Objects.requireNonNull(InventoryUtils.getEnumHand(Items.END_CRYSTAL)));
         }
     }
@@ -323,192 +306,29 @@ public class CrystalUtils implements Wrapper {
         return circleblocks;
     }
 
-    public static boolean canSeePos(BlockPos pos) {
-        return mc.world.rayTraceBlocks(new Vec3d(mc.player.posX, mc.player.posY + (double) mc.player.getEyeHeight(), mc.player.posZ), new Vec3d(pos.getX() + 0.5, pos.getY() + 1, pos.getZ() + 0.5), false, true, false) == null;
-    }
-
-    public static boolean isClose(int input1, int input2, double deviation) {
-        return ((input2 + deviation) < (input1 - deviation)) && ((input1 - deviation) < input2);
-    }
-
-    public static boolean isClose(BlockPos pos1, BlockPos pos2, double d) {
-        return isClose(pos1.getX(), pos2.getX(), d) && isClose(pos1.getY(), pos2.getY(), d) && isClose(pos1.getZ(), pos2.getZ(), d);
-    }
-
-    public static EntityEnderCrystal isCrystalStuck(BlockPos crystalPos) {
-        for (Entity e : mc.world.getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(crystalPos))) {
-            // TODO : figure out how to make this work with minecraft shitty code
-            if (isClose(crystalPos, e.getPosition(), 0.5)) {
-                MessageUtils.sendMessage("shit too close");
-                continue;
-            }
-            if (e instanceof EntityEnderCrystal) {
-                return (EntityEnderCrystal) e;
-            }
-        }
-        return null;
-    }
-
-    public static
-    boolean canPlaceCrystalPhobos ( BlockPos blockPos , boolean specialEntityCheck , boolean oneDot15 ) {
-        BlockPos boost = blockPos.add ( 0 , 1 , 0 );
-        BlockPos boost2 = blockPos.add ( 0 , 2 , 0 );
-        try {
-            if ( mc.world.getBlockState ( blockPos ).getBlock ( ) != Blocks.BEDROCK && mc.world.getBlockState ( blockPos ).getBlock ( ) != Blocks.OBSIDIAN ) {
-                return false;
-            }
-            if ( ! oneDot15 && mc.world.getBlockState ( boost2 ).getBlock ( ) != Blocks.AIR || mc.world.getBlockState ( boost ).getBlock ( ) != Blocks.AIR ) {
-                return false;
-            }
-            for (Entity entity : mc.world.getEntitiesWithinAABB ( Entity.class , new AxisAlignedBB ( boost ) )) {
-                if ( entity.isDead || specialEntityCheck && entity instanceof EntityEnderCrystal ) continue;
-                return false;
-            }
-            if ( ! oneDot15 ) {
-                for (Entity entity : mc.world.getEntitiesWithinAABB ( Entity.class , new AxisAlignedBB ( boost2 ) )) {
-                    if ( entity.isDead || specialEntityCheck && entity instanceof EntityEnderCrystal ) continue;
-                    return false;
-                }
-            }
-        } catch ( Exception ignored ) {
-            return false;
-        }
-        return true;
-    }
-
-    public static boolean canPlaceCrystal(BlockPos blockPos, boolean specialEntityCheck, boolean onepointThirteen) {
+    public static boolean canPlaceCrystalPhobos(BlockPos blockPos, boolean specialEntityCheck, boolean oneDot15) {
         BlockPos boost = blockPos.add(0, 1, 0);
         BlockPos boost2 = blockPos.add(0, 2, 0);
         try {
-            if (!onepointThirteen) {
-                if (mc.world.getBlockState(blockPos).getBlock() != Blocks.BEDROCK && mc.world.getBlockState(blockPos).getBlock() != Blocks.OBSIDIAN) {
-                    return false;
-                }
-                if (mc.world.getBlockState(boost).getBlock() != Blocks.AIR || mc.world.getBlockState(boost2).getBlock() != Blocks.AIR) {
-                    return false;
-                }
-                if (!specialEntityCheck) {
-                    return mc.world.getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(boost)).isEmpty() && mc.world.getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(boost2)).isEmpty();
-                }
-                for (Entity entity : mc.world.getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(boost))) {
-                    if (entity instanceof EntityEnderCrystal) continue;
-                    return false;
-                }
+            if (mc.world.getBlockState(blockPos).getBlock() != Blocks.BEDROCK && mc.world.getBlockState(blockPos).getBlock() != Blocks.OBSIDIAN) {
+                return false;
+            }
+            if (!oneDot15 && mc.world.getBlockState(boost2).getBlock() != Blocks.AIR || mc.world.getBlockState(boost).getBlock() != Blocks.AIR) {
+                return false;
+            }
+            for (Entity entity : mc.world.getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(boost))) {
+                if (entity.isDead || specialEntityCheck && entity instanceof EntityEnderCrystal) continue;
+                return false;
+            }
+            if (!oneDot15) {
                 for (Entity entity : mc.world.getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(boost2))) {
-                    if (entity instanceof EntityEnderCrystal) continue;
-                    return false;
-                }
-            } else {
-                if (mc.world.getBlockState(blockPos).getBlock() != Blocks.BEDROCK && mc.world.getBlockState(blockPos).getBlock() != Blocks.OBSIDIAN) {
-                    return false;
-                }
-                if (mc.world.getBlockState(boost).getBlock() != Blocks.AIR) {
-                    return false;
-                }
-                if (!specialEntityCheck) {
-                    return mc.world.getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(boost)).isEmpty();
-                }
-                for (Entity entity : mc.world.getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(boost))) {
-                    if (entity instanceof EntityEnderCrystal) continue;
+                    if (entity.isDead || specialEntityCheck && entity instanceof EntityEnderCrystal) continue;
                     return false;
                 }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception ignored) {
             return false;
         }
         return true;
     }
-
-    public static boolean isOnGround(double x, double y, double z, Entity entity) {
-        try {
-            double d3 = y;
-            List<AxisAlignedBB> list1 = mc.world.getCollisionBoxes(entity, entity.getEntityBoundingBox().expand(x, y, z));
-            if (y != 0.0D) {
-                int k = 0;
-                for (int l = list1.size(); k < l; ++k) {
-                    y = (list1.get(k)).calculateYOffset(entity.getEntityBoundingBox(), y);
-                }
-            }
-            return d3 != y && d3 < 0.0D;
-        } catch (Exception ignored) {
-            return false;
-        }
-    }
-
-    public static EntityPlayer placeValue(double x, double y, double z, EntityPlayer entity) {
-        List<AxisAlignedBB> list1 = mc.world.getCollisionBoxes(entity, entity.getEntityBoundingBox().expand(x, y, z));
-
-        if (y != 0.0D) {
-            int k = 0;
-            for (int l = list1.size(); k < l; ++k) {
-                y = (list1.get(k)).calculateYOffset(entity.getEntityBoundingBox(), y);
-            }
-            if (y != 0.0D) {
-                entity.setEntityBoundingBox(entity.getEntityBoundingBox().offset(0.0D, y, 0.0D));
-            }
-        }
-
-        if (x != 0.0D) {
-            int j5 = 0;
-            for (int l5 = list1.size(); j5 < l5; ++j5) {
-                x = calculateXOffset(entity.getEntityBoundingBox(), x, list1.get(j5));
-            }
-            if (x != 0.0D) {
-                entity.setEntityBoundingBox(entity.getEntityBoundingBox().offset(x, 0.0D, 0.0D));
-            }
-        }
-
-        if (z != 0.0D) {
-            int k5 = 0;
-            for (int i6 = list1.size(); k5 < i6; ++k5) {
-                z = calculateZOffset(entity.getEntityBoundingBox(), z, list1.get(k5));
-            }
-            if (z != 0.0D) {
-                entity.setEntityBoundingBox(entity.getEntityBoundingBox().offset(0.0D, 0.0D, z));
-            }
-        }
-        return entity;
-    }
-
-    public static double calculateXOffset(AxisAlignedBB other, double offsetX, AxisAlignedBB this1) {
-        if (other.maxY > this1.minY && other.minY < this1.maxY && other.maxZ > this1.minZ && other.minZ < this1.maxZ) {
-            if (offsetX > 0.0D && other.maxX <= this1.minX) {
-                double d1 = (this1.minX - 0.3) - other.maxX;
-
-                if (d1 < offsetX)
-                {
-                    offsetX = d1;
-                }
-            } else if (offsetX < 0.0D && other.minX >= this1.maxX) {
-                double d0 = (this1.maxX + 0.3) - other.minX;
-
-                if (d0 > offsetX)
-                {
-                    offsetX = d0;
-                }
-            }
-        }
-        return offsetX;
-    }
-
-    public static double calculateZOffset(AxisAlignedBB other, double offsetZ, AxisAlignedBB this1) {
-        if (other.maxX > this1.minX && other.minX < this1.maxX && other.maxY > this1.minY && other.minY < this1.maxY) {
-            if (offsetZ > 0.0D && other.maxZ <= this1.minZ) {
-                double d1 = (this1.minZ - 0.3) - other.maxZ;
-                if (d1 < offsetZ) {
-                    offsetZ = d1;
-                }
-            }
-            else if (offsetZ < 0.0D && other.minZ >= this1.maxZ) {
-                double d0 = (this1.maxZ + 0.3) - other.minZ;
-                if (d0 > offsetZ) {
-                    offsetZ = d0;
-                }
-            }
-
-        }
-        return offsetZ;
-    }
-
 }

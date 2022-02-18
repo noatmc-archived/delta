@@ -1,6 +1,5 @@
 package delta.util;
 
-import com.mojang.realmsclient.gui.ChatFormatting;
 import net.minecraft.item.Item;
 import net.minecraft.network.play.client.CPacketHeldItemChange;
 import net.minecraft.util.EnumHand;

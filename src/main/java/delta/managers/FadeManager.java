@@ -1,9 +1,7 @@
 package delta.managers;
 
 import delta.util.RenderUtils;
-import delta.util.Wrapper;
 import delta.util.fade.FadePos;
-import delta.util.fade.Utils;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;

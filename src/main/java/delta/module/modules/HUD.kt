@@ -5,7 +5,6 @@ import delta.module.Category
 import delta.module.Module
 import delta.setting.Setting
 import delta.util.RenderUtils
-import delta.util.StringUtils
 import net.minecraftforge.client.event.RenderGameOverlayEvent
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
