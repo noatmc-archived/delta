@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
  * @since 18/02/2022
  */
 
-// Havent tested yet lawl
+// Havent tested yet
 public class PrestigeCrystal extends Module {
     protected final Setting targetMode = setting("Target Mode", new String[]{
             "Range",
