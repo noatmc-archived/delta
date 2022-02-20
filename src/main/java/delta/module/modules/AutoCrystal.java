@@ -20,8 +20,10 @@ import me.bush.eventbus.annotation.ListenerPriority;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityEnderCrystal;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.init.SoundEvents;
+import net.minecraft.network.play.server.SPacketBlockChange;
 import net.minecraft.network.play.server.SPacketSoundEffect;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
@@ -32,6 +34,8 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.TreeMap;
 
 @SuppressWarnings("all")
 public class AutoCrystal extends Module {
@@ -56,7 +60,10 @@ public class AutoCrystal extends Module {
     Setting replace = setting("Replace", false);
     Setting autoSwitch = setting("Auto Switch", true);
     Setting silent = setting("Silent", true);
-    Setting sync = setting("Sync Attack", true);
+    Setting sync = setting("Sync Mode", new String[]{
+        "Sound","Attack", "None"
+    });
+    Setting hitOnce = setting("Hit Once", true);
     Setting swing = setting("Swing", true);
     Setting rotate = setting("Rotation", false);
     Setting multiplace = setting("Multiplace", false);
@@ -74,6 +81,7 @@ public class AutoCrystal extends Module {
     Setting Dg = setting("D-Green", 255, 0, 255, true);
     Setting Db = setting("D-Blue", 255, 0, 255, true);
     Setting Dshadow = setting("D-Shadow", true);
+    Setting text = setting("Text", false);
     Setting a = setting("Alpha", 255, 0, 255, true);
 
     Setting noDelay = setting("No Delay", true);
@@ -81,6 +89,7 @@ public class AutoCrystal extends Module {
     ArrayList<EntityEnderCrystal> attackedCrystal = new ArrayList<>();
     Position position = null;
     Position render = null;
+    TreeMap<Integer, Double> idk = new TreeMap<>();
     EntityPlayer target = null;
     double damage;
     int speed = 0;
@@ -107,7 +116,7 @@ public class AutoCrystal extends Module {
     @EventListener
     public void onPacketReceive(PacketEvent.Receive event) {
         try {
-            if (event.getPacket() instanceof SPacketSoundEffect) {
+            if (event.getPacket() instanceof SPacketSoundEffect && sync.getMode() == "Sound") {
                 final SPacketSoundEffect packet = (SPacketSoundEffect) event.getPacket();
 
                 if (packet.getCategory() == SoundCategory.BLOCKS && packet.getSound() == SoundEvents.ENTITY_GENERIC_EXPLODE) {
@@ -132,6 +141,7 @@ public class AutoCrystal extends Module {
             damage = 0;
             attackedCrystal.clear();
             timer.reset();
+            idk.clear();
         }
     }
 
@@ -140,6 +150,7 @@ public class AutoCrystal extends Module {
         position = null;
         attackedCrystal.clear();
         timer.reset();
+        idk.clear();
         placeTimer.reset();
         speed = 0;
         damage = 0;
@@ -156,23 +167,35 @@ public class AutoCrystal extends Module {
     public void onEntitySpawn(Entity crystal) {
         if (this.position != null) {
             if (crystal instanceof EntityEnderCrystal && mc.player.getDistance(crystal) <= breakRange.getDVal() && !attackedCrystal.contains(crystal)) {
-                if (breakCrystal.getBVal() && breakWhen.getMode() == "Spawned") {
+                if (breakCrystal.getBVal() && breakWhen.getMode() == "Spawned" && checkBreakOnce(crystal)) {
+                    long nanoTime = System.nanoTime();
                     if (rotate.getBVal()) {
                         DeltaCore.rotationManager.setRotate(true);
                         DeltaCore.rotationManager.setYaw(RotationUtil.getRotations(crystal.getPositionVector())[0]);
                         DeltaCore.rotationManager.setPitch(RotationUtil.getRotations(crystal.getPositionVector())[1]);
                     }
                     mc.playerController.attackEntity(mc.player, crystal);
-                    if (sync.getBVal()) crystal.setDead();
-                    attackedCrystal.add((EntityEnderCrystal) crystal);
+                    if (sync.getMode() == "Attack") crystal.setDead();
+                    if (crystal.isDead) {
+                        attackedCrystal.add((EntityEnderCrystal) crystal);
+                    }
                     if (rotate.getBVal()) {
                         DeltaCore.rotationManager.restoreRotations();
-                        DeltaCore.rotationManager.setRotate(false);
                     }
+                    idk.put(crystal.entityId, (double) TimeUtils.toMs(System.nanoTime() - nanoTime));
                 }
             }
         }
     }
+
+    boolean checkBreakOnce(Entity crystal) {
+        if (!hitOnce.getBVal()) {
+            return true;
+        }
+        return !idk.containsKey(crystal.entityId);
+    }
+
+
 
     public void breakCrystal() {
         ArrayList<Crystal> crystals = new ArrayList<>();
@@ -190,18 +213,19 @@ public class AutoCrystal extends Module {
         crystals.sort(new CSorter());
         if (!crystals.isEmpty()) {
             EntityEnderCrystal crystal = crystals.get(0).getCrystal();
+            long nanoTime = System.nanoTime();
             if (rotate.getBVal()) {
                 DeltaCore.rotationManager.setRotate(true);
                 DeltaCore.rotationManager.setYaw(RotationUtil.getRotations(crystal.getPositionVector())[0]);
                 DeltaCore.rotationManager.setPitch(RotationUtil.getRotations(crystal.getPositionVector())[1]);
             }
             mc.playerController.attackEntity(mc.player, crystal);
-            if (sync.getBVal()) crystal.setDead();
+            if (sync.getMode() == "Attack") crystal.setDead();
             attackedCrystal.add((EntityEnderCrystal) crystal);
             if (rotate.getBVal()) {
                 DeltaCore.rotationManager.restoreRotations();
-                DeltaCore.rotationManager.setRotate(false);
             }
+            idk.put(crystal.entityId, (double) TimeUtils.toMs(System.nanoTime() - nanoTime));
         }
     }
 
@@ -230,7 +254,10 @@ public class AutoCrystal extends Module {
 
     @Override
     public String getHudString() {
-        return String.format("%.2f", damage);
+        if (idk.isEmpty()) {
+            return "None";
+        }
+        return String.format("%.4f", idk.lastEntry().getValue());
     }
 
     @Override
@@ -258,7 +285,7 @@ public class AutoCrystal extends Module {
     public void onRenderWorldLastEvent(RenderWorldLastEvent event) {
         if (this.render != null && !fade.getBVal()) {
             RenderUtils.drawBoxESP(render.pos, new Color(((int) r.getDVal()), (int) g.getDVal(), (int) b.getDVal(), (int) a.getDVal()), 1.5f, true, true, (int) a.getDVal(), 0.0);
-            RenderUtils.drawText(render.pos, String.format("%.1f", render.damage), new Color(((int) r.getDVal()), (int) g.getDVal(), (int) b.getDVal()), Dshadow.getBVal());
+            if (text.getBVal()) RenderUtils.drawText(render.pos, String.format("%.1f", render.damage), new Color(((int) r.getDVal()), (int) g.getDVal(), (int) b.getDVal()), Dshadow.getBVal());
         }
     }
 
@@ -337,7 +364,6 @@ public class AutoCrystal extends Module {
             if (fade.getBVal()) DeltaCore.fadeManager.addFadePos(new FadePos(position.pos, new Color((int) r.getDVal(), (int) g.getDVal(), (int) b.getDVal())));
             if (rotate.getBVal()) {
                 DeltaCore.rotationManager.restoreRotations();
-                DeltaCore.rotationManager.setRotate(false);
             }
             render = position;
         } catch (Exception e) {

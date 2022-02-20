@@ -23,7 +23,6 @@ public class DeltaCore {
     public static ModuleManager moduleManager;
     public static CommandManager commandManager;
     public static ClickGui clickGui;
-    public static ThreadManager threadManager;
     public static RotationManager rotationManager;
     public static ConfigManager configManager;
     public static TotemPopManager totemPopManager;
@@ -35,12 +34,24 @@ public class DeltaCore {
 
     @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
+        System.out.println("cope harder");
+        System.out.println("cope harder");
+        System.out.println("cope harder");
+        System.out.println("cope harder");
+        System.out.println("cope harder");
+        System.out.println("cope harder");
+        System.out.println("cope harder");
+        System.out.println("cope harder");
+        System.out.println("cope harder");
+        System.out.println("cope harder");
+        System.out.println("cope harder");
+        System.out.println("cope harder");
+        System.out.println("cope harder");
         mc = Minecraft.getMinecraft();
         EVENT_BUS = new EventBus();
         moduleManager = new ModuleManager();
         totemPopManager = new TotemPopManager();
         commandManager = new CommandManager();
-        threadManager = new ThreadManager();
         configManager = new ConfigManager();
         rotationManager = new RotationManager();
         macroManager = new MacroManager();

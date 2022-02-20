@@ -67,7 +67,7 @@ public class Module {
             keyDown = isDown;
             if (isToggled()) onUpdate();
         }
-        onTick();
+        if (isToggled()) onTick();
     }
 
     public void onThread() {

@@ -29,7 +29,13 @@ public class ModuleManager {
         modules.add(new TotemPopCounter());
         modules.add(new Velocity());
         modules.add(new CityAlert());
+        /*
+        - removed for a while bc it fucked up rotations + break logic didn't work
         modules.add(new PrestigeCrystal());
+         */
+        modules.add(new BoatSwing());
+        modules.add(new Offhand());
+        modules.add(new AntiRegear());
     }
 
     public ArrayList<Module> getModules() {
