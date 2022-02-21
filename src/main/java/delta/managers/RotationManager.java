@@ -24,12 +24,17 @@ public class RotationManager implements Wrapper {
 
     @EventListener
     public void onPacketSent(PacketEvent.Send event) {
-        if (event.getPacket() instanceof CPacketPlayer && shouldRotate || (yaw == mc.player.rotationYaw && pitch == mc.player.rotationPitch)) {
+        if (event.getPacket() instanceof CPacketPlayer && shouldRotate || (event.getPacket() instanceof CPacketPlayer && check())) {
             ((CPacketPlayer) event.getPacket()).yaw = this.yaw;
             ((CPacketPlayer) event.getPacket()).pitch = this.pitch;
-            if  (yaw == mc.player.rotationYaw && pitch == mc.player.rotationPitch) {
+            if  (check()) {
                 setRotate(false);
             }
         }
+    }
+
+    boolean check() {
+        if (mc.player == null) return true;
+        return (yaw == mc.player.rotationYaw && pitch == mc.player.rotationPitch);
     }
 }
