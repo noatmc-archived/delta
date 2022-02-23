@@ -387,31 +387,6 @@ public class PrestigeCrystal extends Module {
         return intersecting.isEmpty() && (mc.world.getBlockState(pos).getBlock().equals(Blocks.BEDROCK) || mc.world.getBlockState(pos).getBlock().equals(Blocks.OBSIDIAN)) && BlockUtils.isAir(pos.up()) && BlockUtils.isAir(pos.up().up());
     }
 
-    protected EnumFacing getClosestEnumFacing(BlockPos pos) {
-        TreeMap<Double, EnumFacing> facingTreeMap = new TreeMap<>();
-        if (BlockUtils.isAir(pos.up())) {
-            facingTreeMap.put(mc.player.getDistanceSq(pos.up()), EnumFacing.UP);
-        }
-        if (BlockUtils.isAir(pos.down())) {
-            facingTreeMap.put(mc.player.getDistanceSq(pos.down()), EnumFacing.DOWN);
-        }
-        if (BlockUtils.isAir(pos.north())) {
-            facingTreeMap.put(mc.player.getDistanceSq(pos.north()), EnumFacing.NORTH);
-        }
-        if (BlockUtils.isAir(pos.east())) {
-            facingTreeMap.put(mc.player.getDistanceSq(pos.east()), EnumFacing.EAST);
-        }
-        if (BlockUtils.isAir(pos.south())) {
-            facingTreeMap.put(mc.player.getDistanceSq(pos.south()), EnumFacing.SOUTH);
-        }
-        if (BlockUtils.isAir(pos.west())) {
-            facingTreeMap.put(mc.player.getDistanceSq(pos.west()), EnumFacing.WEST);
-        }
-        if (!facingTreeMap.isEmpty())
-            return facingTreeMap.firstEntry().getValue();
-        return null;
-    }
-
 
     protected void swingArm(boolean place) {
         EnumHand autoHand = mc.player.getHeldItemOffhand().getItem().equals(Items.END_CRYSTAL) ? EnumHand.OFF_HAND : EnumHand.MAIN_HAND;
