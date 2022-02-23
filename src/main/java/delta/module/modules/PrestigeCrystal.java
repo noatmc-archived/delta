@@ -213,10 +213,9 @@ public class PrestigeCrystal extends Module {
         if (needsSilentSwitch && slot != -1) {
             InventoryUtils.switchToSlot(slot, true);
         }
-        EnumFacing facing = pos.getY() > 254 ? EnumFacing.NORTH : getClosestEnumFacing(pos);
-        EnumHand enumHand = mc.player.getHeldItemOffhand().getItem().equals(Items.END_CRYSTAL) ? EnumHand.OFF_HAND : mc.player.getHeldItemMainhand().getItem().equals(Items.END_CRYSTAL) ? EnumHand.MAIN_HAND : null;
-        if (enumHand != null && mc.getConnection() != null) {
-            mc.getConnection().getNetworkManager().channel().writeAndFlush(new CPacketPlayerTryUseItemOnBlock(pos, facing != null ? facing : EnumFacing.UP, enumHand, 0.5f, 0.5f, 0.5f));
+        EnumHand enumHand = mc.player.getHeldItemOffhand().getItem().equals(Items.END_CRYSTAL) ? EnumHand.OFF_HAND : EnumHand.MAIN_HAND;
+        if (mc.getConnection() != null) {
+            mc.getConnection().getNetworkManager().channel().writeAndFlush(new CPacketPlayerTryUseItemOnBlock(pos, EnumFacing.UP, enumHand, 0.5f, 0.5f, 0.5f));
         }
         if (placeSwing.getMVal() != 0) {
             swingArm(true);
