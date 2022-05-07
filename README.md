@@ -1,4 +1,5 @@
 ---
+# this project is going inactive due to me working on a new project and more stuff.
 # delta
 bad skid made by a dumbass pt.3
 
